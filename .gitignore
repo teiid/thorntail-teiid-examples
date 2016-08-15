@@ -1,0 +1,15 @@
+.settings
+target
+.project
+.classpath
+.checkstyle
+bin
+build.xml
+.DS_Store
+m2e-wtp
+*~
+# btm transaction
+*.tlog
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
