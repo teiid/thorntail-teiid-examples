@@ -25,6 +25,11 @@
             </dependency>
             <dependency>
                 <groupId>org.wildfly.swarm</groupId>
+                <artifactId>jaxrs</artifactId>
+                <version>${version.wildfly-swarm}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.wildfly.swarm</groupId>
                 <artifactId>datasources</artifactId>
                 <version>${version.wildfly-swarm}</version>
             </dependency>
@@ -37,6 +42,7 @@
     </dependencyManagement>
     
     <modules>
+        <module>empty-source</module>
         <module>rdbms-as-datasource</module>
     </modules>
 

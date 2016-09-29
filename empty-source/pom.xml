@@ -7,38 +7,20 @@
         <artifactId>examples-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>rdbms-as-datasource</artifactId>   
+    <artifactId>empty-source</artifactId>   
     <packaging>jar</packaging>
-    <name>WildFly Swarm Teiid RDBMS as datasource</name>
-    <description>WildFly Swarm Teiid RDBMS as datasource</description>
+    <name>WildFly Swarm Teiid Empty source</name>
+    <description>WildFly Swarm Teiid Empty source</description>
 
     <dependencies>      
 	    <dependency>
 	        <groupId>org.wildfly.swarm</groupId>
 	        <artifactId>teiid</artifactId>
 	    </dependency>
-	    
-
-	    <!--  
-	    
 	    <dependency>
-	        <groupId>org.jboss.teiid.connectors</groupId>
-	        <artifactId>translator-jdbc-modules</artifactId>
-	        <version>1.0.0-SNAPSHOT</version>
+	        <groupId>org.wildfly.swarm</groupId>
+	        <artifactId>jaxrs</artifactId>
 	    </dependency>
-	    <dependency>
-            <groupId>org.wildfly.swarm</groupId>
-            <artifactId>datasources</artifactId>
-        </dependency>   
-        <dependency>
-            <groupId>org.wildfly.swarm</groupId>
-            <artifactId>resource-adapters</artifactId>
-        </dependency>
-	    <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-        </dependency>
-        -->
     </dependencies>
 
     <build>
