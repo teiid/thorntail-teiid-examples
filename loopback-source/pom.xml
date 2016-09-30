@@ -7,10 +7,10 @@
         <artifactId>examples-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <artifactId>rdbms-as-datasource</artifactId>   
+    <artifactId>loopback-source</artifactId>   
     <packaging>jar</packaging>
-    <name>WildFly Swarm Teiid RDBMS as datasource</name>
-    <description>WildFly Swarm Teiid RDBMS as datasource</description>
+    <name>WildFly Swarm Teiid Loopback Source</name>
+    <description>WildFly Swarm Teiid Loopback source</description>
 
     <dependencies>      
 	    <dependency>
@@ -19,22 +19,16 @@
 	    </dependency>
 	    
 	    <dependency>
-            <groupId>org.wildfly.swarm</groupId>
-            <artifactId>datasources</artifactId>
-        </dependency>   
+	        <groupId>org.jboss.teiid.connectors</groupId>
+	        <artifactId>translator-loopback</artifactId>
+	        <version>9.1.0.Beta2-SNAPSHOT</version>
+	    </dependency>
 	    
 	    <dependency>
 	        <groupId>org.jboss.teiid.connectors</groupId>
 	        <artifactId>translator-jdbc</artifactId>
 	        <version>9.1.0.Beta2-SNAPSHOT</version>
 	    </dependency>
-	    
-	    <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-        </dependency>
-
-
     </dependencies>
 
     <build>

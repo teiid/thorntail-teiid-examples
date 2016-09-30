@@ -1,0 +1,2 @@
+org.jboss.teiid.connectors:translator-jdbc
+org.jboss.teiid.connectors:translator-loopback

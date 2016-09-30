@@ -43,6 +43,7 @@
     
     <modules>
         <module>empty-source</module>
+        <module>loopback-source</module>
         <module>rdbms-as-datasource</module>
     </modules>
 
