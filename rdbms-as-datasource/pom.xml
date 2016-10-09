@@ -1,37 +1,46 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
-    <parent>
-        <groupId>org.wildfly.swarm.teiid.examples</groupId>
-        <artifactId>examples-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-    </parent>
-    <artifactId>rdbms-as-datasource</artifactId>   
+    <groupId>org.wildfly.swarm.teiid.examples</groupId> 
+    <artifactId>rdbms-as-datasource</artifactId>  
+    <version>1.0.0-SNAPSHOT</version> 
     <packaging>jar</packaging>
     <name>WildFly Swarm Teiid RDBMS as datasource</name>
     <description>WildFly Swarm Teiid RDBMS as datasource</description>
+    
+    <properties>
+        <version.teiid>9.1.0.Beta2-SNAPSHOT</version.teiid>
+        <version.wildfly-swarm>2016.8.1</version.wildfly-swarm>
+        <version.h2>1.4.187</version.h2>
+        
+        <version.compiler.plugin>3.1</version.compiler.plugin>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+    </properties>
 
     <dependencies>      
 	    <dependency>
 	        <groupId>org.wildfly.swarm</groupId>
 	        <artifactId>teiid</artifactId>
+	        <version>${version.wildfly-swarm}</version>
 	    </dependency>
 	    
 	    <dependency>
             <groupId>org.wildfly.swarm</groupId>
             <artifactId>datasources</artifactId>
+            <version>${version.wildfly-swarm}</version>
         </dependency>   
 	    
 	    <dependency>
 	        <groupId>org.jboss.teiid.connectors</groupId>
 	        <artifactId>translator-jdbc</artifactId>
-	        <version>9.1.0.Beta2-SNAPSHOT</version>
+	        <version>${version.teiid}</version>
 	    </dependency>
 	    
 	    <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
+            <version>${version.h2}</version>
         </dependency>
 
 
@@ -39,10 +48,28 @@
 
     <build>
         <finalName>${artifactId}</finalName>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${version.compiler.plugin}</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source>
+                    <target>${maven.compiler.target}</target>
+                    <showDeprecation>false</showDeprecation>
+                    <showWarnings>false</showWarnings>
+                </configuration>
+            </plugin>
 	        <plugin>
                 <groupId>org.wildfly.swarm</groupId>
                 <artifactId>wildfly-swarm-plugin</artifactId>
+                <version>${version.wildfly-swarm}</version>
                 <configuration>
                     <mainClass>org.wildfly.swarm.teiid.examples.Main</mainClass>
                 </configuration>

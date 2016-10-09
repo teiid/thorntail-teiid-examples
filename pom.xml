@@ -7,86 +7,14 @@
     <packaging>pom</packaging>
     <name>WildFly Swarm Teiid Examples</name>
     <description>WildFly Swarm Teiid Examples</description>
-   
-    <properties>
-        <version.wildfly-swarm>2016.8.1</version.wildfly-swarm>
-        <version.h2>1.4.187</version.h2>
-        <version.compiler.plugin>3.1</version.compiler.plugin>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.source>1.8</maven.compiler.source>
-    </properties>
-    
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.wildfly.swarm</groupId>
-                <artifactId>teiid</artifactId>
-                <version>${version.wildfly-swarm}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wildfly.swarm</groupId>
-                <artifactId>jaxrs</artifactId>
-                <version>${version.wildfly-swarm}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.wildfly.swarm</groupId>
-                <artifactId>datasources</artifactId>
-                <version>${version.wildfly-swarm}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>${version.h2}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
     
     <modules>
         <module>empty-source</module>
         <module>loopback-source</module>
         <module>rdbms-as-datasource</module>
+        <module>vdb-datafederation</module>
+        <module>vdb-materialization</module>
     </modules>
 
-    <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${version.compiler.plugin}</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                    <showDeprecation>false</showDeprecation>
-                    <showWarnings>false</showWarnings>
-                </configuration>
-            </plugin>
-	        <plugin>
-                <groupId>org.wildfly.swarm</groupId>
-                <artifactId>wildfly-swarm-plugin</artifactId>
-                <version>${version.wildfly-swarm}</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>package</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            </plugins>
-        </pluginManagement>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                    <showDeprecation>false</showDeprecation>
-                    <showWarnings>false</showWarnings>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>
 

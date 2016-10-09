@@ -1,0 +1,83 @@
+
+= What is it?
+
+> Please raise any issues found with this example in our JIRA:
+> https://issues.jboss.org/projects/TEIID
+
+This example demonstrates:
+
+* how to use wildfly swarm to configure teiid fraction, and run teiid as a swarm uber jar.
+
+== Project `pom.xml`
+
+The project is a normal maven project with `jar` packaging
+
+[source,xml]
+----
+<packaging>jar</packaging>
+----
+
+The project adds a `<plugin>` to configure `wildfly-swarm-plugin` to create the runnable `.jar`.
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.wildfly.swarm</groupId>
+  <artifactId>wildfly-swarm-plugin</artifactId>
+  <configuration>
+    <mainClass>org.wildfly.swarm.teiid.examples.Main</mainClass>
+  </configuration>
+  ....
+</plugin>
+----
+
+To define the needed parts of WildFly Swarm, a dependency(teiid) is added.
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.wildfly.swarm</groupId>
+    <artifactId>teiid</artifactId>
+    <version>${version.wildfly-swarm}</version>
+</dependency>
+----
+
+== Project `main()`
+
+This example setup swarm and deploy vdb programatically.
+
+[source,java]
+----
+public static void main(String[] args) throws Exception {
+
+    Swarm swarm = new Swarm();        
+    swarm.start();
+
+    VDBArchive vdb = ShrinkWrap.create(VDBArchive.class);
+    vdb.vdb(Main.class.getClassLoader().getResourceAsStream("empty-vdb.xml"));
+    swarm.deploy(vdb);   
+}
+----
+
+== Run
+
+To build the project
+
+[source,java]
+----
+mvn clean package
+----
+
+once build success, a `empty-source-swarm.jar ` will generated under 'target' folder, run the example via
+
+[source,java]
+----
+java -jar empty-source-swarm.jar 
+----
+
+To test the example, execute the following sql, either use a sql client like SQuirreL, or run programatically with Teiid JDBC Driver. 
+
+[source,sql]
+----
+SELECT * FROM SYSADMIN.MatViews
+----

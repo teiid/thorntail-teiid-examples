@@ -1,0 +1,119 @@
+
+= What is it?
+
+> Please raise any issues found with this example in our JIRA:
+> https://issues.jboss.org/projects/TEIID
+
+This example demonstrates:
+
+* how to define a vdb load and transfer data from a relational database.
+* how to use wildfly swarm to configure translaors, deploy datasources and run teiid as a swarm uber jar.
+
+== Project `pom.xml`
+
+The project is a normal maven project with `jar` packaging
+
+[source,xml]
+----
+<packaging>jar</packaging>
+----
+
+The project adds a `<plugin>` to configure `wildfly-swarm-plugin` to create the runnable `.jar`.
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.wildfly.swarm</groupId>
+  <artifactId>wildfly-swarm-plugin</artifactId>
+  <configuration>
+    <mainClass>org.wildfly.swarm.teiid.examples.Main</mainClass>
+  </configuration>
+  ....
+</plugin>
+----
+
+To define the needed parts of WildFly Swarm, two dependencies(teiid, datasources) are added.
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.wildfly.swarm</groupId>
+    <artifactId>teiid</artifactId>
+    <version>${version.wildfly-swarm}</version>
+</dependency>
+<dependency>
+    <groupId>org.wildfly.swarm</groupId>
+    <artifactId>datasources</artifactId>
+    <version>${version.wildfly-swarm}</version>
+</dependency>          
+----
+
+To support teiid tranalators/connectors in general, the additional dependencies are added.
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.jboss.teiid.connectors</groupId>
+    <artifactId>translator-jdbc</artifactId>
+    <version>${version.teiid}</version>
+</dependency>
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <version>${version.h2}</version>
+</dependency>
+----
+
+== Project `main()`
+
+This example configured teiid translators, datasource, resource adapter and deploy vdb programatically.
+
+[source,java]
+----
+public static void main(String[] args) throws Exception {
+
+    Swarm swarm = new Swarm();        
+    swarm.fraction(new TeiidFraction().translator("h2", t -> t.module("org.jboss.teiid.translator.jdbc")));
+    swarm.start();
+
+    swarm.deploy(Swarm.artifact("com.h2database:h2", "h2"));
+    DatasourceArchive dsArchive = ShrinkWrap.create(DatasourceArchive.class);
+    dsArchive.dataSource("accounts-ds", (ds) -> {
+        ds.connectionUrl(URL);
+        ds.driverName("h2");
+        ds.userName("sa");
+        ds.password("sa");
+    });
+    swarm.deploy(dsArchive);
+
+    VDBArchive vdb = ShrinkWrap.create(VDBArchive.class);
+    vdb.vdb(Main.class.getClassLoader().getResourceAsStream("portfolio-vdb.xml"));
+    swarm.deploy(vdb);   
+}
+----
+
+> This example depend on a jboss modules, rerfer to `src/main/resources/modules` for details. Alternatively, if you want define moduls externally, you can build the modules externally, then add your modules as a dependency, teiid feature back can be used to build teiid related modules.
+
+== Run
+
+To build the project
+
+[source,java]
+----
+mvn clean package
+----
+
+once build success, a `rdbms-as-datasource-swarm.jar` will generated under 'target' folder, run the example via
+
+[source,java]
+----
+java -jar rdbms-as-datasource-swarm.jar
+----
+
+To test the example, execute the following sql, either use a sql client like SQuirreL, or run programatically with Teiid JDBC Driver. 
+
+[source,sql]
+----
+SELECT * FROM product
+SELECT x.* FROM (call native('select Shares_Count, MONTHNAME(Purchase_Date) from Holdings')) w, ARRAYTABLE(w.tuple COLUMNS "Shares_Count" integer, "MonthPurchased" string ) AS x
+----

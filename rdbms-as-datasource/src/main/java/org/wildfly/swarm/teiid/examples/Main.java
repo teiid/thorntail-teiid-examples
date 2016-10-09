@@ -23,7 +23,7 @@ public class Main {
         swarm.fraction(new TeiidFraction().translator("h2", t -> t.module("org.jboss.teiid.translator.jdbc")));
         swarm.start();
 
-        // 2. deploy data sources/resource adapter
+        // 2. deploy data sources
         swarm.deploy(Swarm.artifact("com.h2database:h2", "h2"));
         DatasourceArchive dsArchive = ShrinkWrap.create(DatasourceArchive.class);
         dsArchive.dataSource("accounts-ds", (ds) -> {

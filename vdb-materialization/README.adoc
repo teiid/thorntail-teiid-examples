@@ -1,0 +1,157 @@
+
+= What is it?
+
+> Please raise any issues found with this example in our JIRA:
+> https://issues.jboss.org/projects/TEIID
+
+This example demonstrates:
+
+* how to define a vdb to enable data federation across multiple data sources (i.e., relational and text file).
+* how to configure external/internal materialization(https://teiid.gitbooks.io/documents/content/caching/Materialized_Views.html[document external/internal materialization]), so that caching can be used to improve query performance.
+* how to use wildfly swarm to configure translaors, resource adapters and run teiid as a swarm uber jar.
+
+== Project `pom.xml`
+
+The project is a normal maven project with `jar` packaging
+
+[source,xml]
+----
+<packaging>jar</packaging>
+----
+
+The project adds a `<plugin>` to configure `wildfly-swarm-plugin` to create the runnable `.jar`.
+
+[source,xml]
+----
+<plugin>
+  <groupId>org.wildfly.swarm</groupId>
+  <artifactId>wildfly-swarm-plugin</artifactId>
+  <configuration>
+    <mainClass>org.wildfly.swarm.teiid.examples.Main</mainClass>
+  </configuration>
+  ....
+</plugin>
+----
+
+To define the needed parts of WildFly Swarm, a few dependencies(teiid, datasources, resource-adapters) are added.
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.wildfly.swarm</groupId>
+    <artifactId>teiid</artifactId>
+    <version>${version.wildfly-swarm}</version>
+</dependency>
+<dependency>
+    <groupId>org.wildfly.swarm</groupId>
+    <artifactId>datasources</artifactId>
+    <version>${version.wildfly-swarm}</version>
+</dependency>          
+<dependency>
+    <groupId>org.wildfly.swarm</groupId>
+    <artifactId>resource-adapters</artifactId>
+    <version>${version.wildfly-swarm}</version>
+</dependency> 
+----
+
+To support teiid tranalators/connectors in general, the additional dependencies are added.
+
+[source,xml]
+----
+<dependency>
+    <groupId>org.jboss.teiid.connectors</groupId>
+    <artifactId>translator-jdbc</artifactId>
+    <version>${version.teiid}</version>
+</dependency>
+<dependency>
+    <groupId>com.h2database</groupId>
+    <artifactId>h2</artifactId>
+    <version>${version.h2}</version>
+</dependency>
+<dependency>
+    <groupId>org.jboss.teiid.connectors</groupId>
+    <artifactId>translator-file</artifactId>
+    <version>${version.teiid}</version>
+</dependency>
+<dependency>
+    <groupId>org.jboss.teiid.connectors</groupId>
+    <artifactId>connector-file</artifactId>
+    <version>${version.teiid}</version>
+</dependency>
+----
+
+== Project `main()`
+
+This example configured teiid translators, datasource, resource adapter and deploy vdb programatically.
+
+[source,java]
+----
+public static void main(String[] args) throws Exception {
+
+    Swarm swarm = new Swarm();        
+    swarm.fraction(new TeiidFraction()
+             .translator("h2", t -> t.module("org.jboss.teiid.translator.jdbc"))
+             .translator("file", t -> t.module("org.jboss.teiid.translator.file")))
+         .fraction(new DatasourcesFraction()
+             .jdbcDriver("h2", driver -> {
+                 driver.driverClassName("org.h2.Driver");
+                 driver.xaDatasourceClass("org.h2.jdbcx.JdbcDataSource");
+                 driver.driverModuleName("com.h2database.h2");
+             })
+             .dataSource("accounts-ds", ds -> {
+                 ds.driverName("h2");
+                 ds.connectionUrl(URL);
+                 ds.userName("sa");
+                 ds.password("sa");
+             }))
+         .fraction(new ResourceAdapterFraction()
+             .resourceAdapter("fileQS", rac -> rac.module("org.jboss.teiid.resource-adapter.file")
+                 .connectionDefinitions("fileQS", cdc -> cdc.className("org.teiid.resource.adapter.file.FileManagedConnectionFactory")
+                     .jndiName("java:/marketdata-file")
+                     .configProperties("ParentDirectory", cpc -> cpc.value(marketdataDir))
+                     .configProperties("AllowParentPaths", cpc -> cpc.value("true")))));
+    swarm.start();
+
+    VDBArchive vdb = ShrinkWrap.create(VDBArchive.class);
+    vdb.vdb(Main.class.getClassLoader().getResourceAsStream("portfolio-vdb.xml"));
+    VDBArchive matvdb = ShrinkWrap.create(VDBArchive.class);
+    matvdb.vdb(Main.class.getClassLoader().getResourceAsStream("portfolio-mat-vdb.xml"));
+    VDBArchive intermatvdb = ShrinkWrap.create(VDBArchive.class);
+    intermatvdb.vdb(Main.class.getClassLoader().getResourceAsStream("portfolio-intermat-vdb.xml"));
+    swarm.deploy(vdb);   
+    swarm.deploy(matvdb);
+    swarm.deploy(intermatvdb);
+}
+----
+
+> This example depend on a series of jboss modules, rerfer to `src/main/resources/modules` for details. Alternatively, if you want define moduls externally, you can build the modules externally, then add your modules as a dependency, teiid feature back can be used to build teiid related modules.
+
+== Run
+
+To build the project
+
+[source,java]
+----
+mvn clean package
+----
+
+once build success, a `vdb-materialization-swarm.jar` will generated under 'target' folder, run the example via
+
+[source,java]
+----
+java -jar vdb-materialization-swarm.jar
+----
+
+To test the example, execute the following sql, either use a sql client like SQuirreL, or run programatically with Teiid JDBC Driver. 
+
+[source,sql]
+----
+select * from StocksMatModel.stockPricesMatView
+select * from StocksMatModel.stockPricesInterMatView
+INSERT INTO PRODUCT (ID,SYMBOL,COMPANY_NAME) VALUES(2000,'RHT','Red Hat Inc')
+select * from StocksMatModel.stockPricesMatView option nocache
+EXEC SYSADMIN.matViewStatus('StocksMatModel', 'stockPricesMatView')
+EXEC SYSADMIN.loadMatView('StocksMatModel', 'stockPricesInterMatView')
+EXEC SYSADMIN.loadMatView('StocksMatModel', 'stockPricesMatView')
+EXEC SYSADMIN.loadMatView('StocksMatModel', 'stockPricesInterMatView')
+----

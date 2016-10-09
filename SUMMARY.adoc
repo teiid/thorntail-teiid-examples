@@ -1,0 +1,10 @@
+= Summary
+
+. link:vdb-datafederation/README.adoc[General]
+.. link:vdb-datafederation/README.adoc[Data Federation Example]
+.. link:vdb-materialization/README.adoc[Data Materialization Example]
+. link:rdbms-as-datasource/README.adoc[Relational database]
+.. link:rdbms-as-datasource/README.adoc[H2 database as a datasource]
+. link:loopback-source/README.adoc[Others]
+.. link:loopback-source/README.adoc[Loopback translator example]
+.. link:empty-source/README.adoc[Empty source example]
