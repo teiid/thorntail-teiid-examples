@@ -9,7 +9,7 @@
     <description>WildFly Swarm Teiid vdb materialization</description>
     
     <properties>
-        <version.teiid>9.1.0.Beta2-SNAPSHOT</version.teiid>
+        <version.teiid>9.2.0.Alpha1-SNAPSHOT</version.teiid>
         <version.wildfly-swarm>2016.8.1</version.wildfly-swarm>
         <version.h2>1.4.187</version.h2>
         
