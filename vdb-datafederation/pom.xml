@@ -9,7 +9,7 @@
     <description>WildFly Swarm Teiid vdb datafederation</description>
     
     <properties>
-        <version.teiid>9.2.0.Alpha1-SNAPSHOT</version.teiid>
+        <version.teiid>9.2.0.Alpha1</version.teiid>
         <version.wildfly-swarm>2016.8.1</version.wildfly-swarm>
         <version.h2>1.4.187</version.h2>
         
