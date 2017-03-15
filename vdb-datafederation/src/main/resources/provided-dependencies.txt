@@ -1,4 +1,5 @@
 org.jboss.teiid.connectors:translator-jdbc
+org.jboss.teiid.connectors:file-api
 org.jboss.teiid.connectors:translator-file
 org.jboss.teiid.connectors:connector-file
 com.h2database:h2

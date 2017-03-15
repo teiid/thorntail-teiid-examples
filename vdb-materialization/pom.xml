@@ -9,11 +9,11 @@
     <description>WildFly Swarm Teiid vdb materialization</description>
     
     <properties>
-        <version.teiid>9.2.0.Alpha1</version.teiid>
-        <version.wildfly-swarm>2016.8.1</version.wildfly-swarm>
+        <version.teiid>9.2.0.Final</version.teiid>
+        <version.wildfly-swarm>2017.4.0-SNAPSHOT</version.wildfly-swarm>
         <version.h2>1.4.187</version.h2>
         
-        <version.compiler.plugin>3.1</version.compiler.plugin>
+        <version.compiler.plugin>3.5.1</version.compiler.plugin>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
     </properties>
@@ -48,6 +48,12 @@
             <artifactId>h2</artifactId>
             <version>${version.h2}</version>
         </dependency>
+        
+        <dependency>
+			<groupId>org.jboss.teiid.connectors</groupId>
+			<artifactId>file-api</artifactId>
+			<version>${version.teiid}</version>
+		</dependency>
         
         <dependency>
             <groupId>org.jboss.teiid.connectors</groupId>
