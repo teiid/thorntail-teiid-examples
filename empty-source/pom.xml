@@ -9,9 +9,9 @@
     <description>WildFly Swarm Teiid Empty source</description>
     
     <properties>
-        <version.wildfly-swarm>2016.8.1</version.wildfly-swarm>
+        <version.wildfly-swarm>2017.4.0-SNAPSHOT</version.wildfly-swarm>
         
-        <version.compiler.plugin>3.1</version.compiler.plugin>
+        <version.compiler.plugin>3.5.1</version.compiler.plugin>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.source>1.8</maven.compiler.source>
     </properties>
