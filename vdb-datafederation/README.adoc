@@ -135,9 +135,54 @@ once build success, a `vdb-datafederation-swarm.jar` will generated under 'targe
 java -jar vdb-datafederation-swarm.jar
 ----
 
-To test the example, execute the following sql, either use a sql client like SQuirreL, or run programatically with Teiid JDBC Driver. 
+By default, jdbc transport bind on `0.0.0.0` and port `31000`, system properties can be used eto bind a specific IP and Port, to bind a IP use `-Dswarm.bind.address=127.0.0.1`, to bind a port use `-Dswarm.teiid.jdbc.port=31000`.
+
+== Query Demonstrations
+
+link:../simpleclient/README.adoc#_execution[Simple Java Client] for sample SQL Queries, link:../simpleclient/SQuirreL.adoc[SQuirreL Client] for a fully featured SQL Queries.
 
 [source,sql]
+.*Example - queries the relational source*
+----
+mvn exec:java -Dvdb="Portfolio" -Dsql="select * from product"
+----
+
+[source,sql]
+.*Example - queries the text file-based source*
+----
+mvn exec:java -Dvdb="Portfolio" -Dsql="select stock.* from (call MarketData.getTextFiles('*.txt')) f, TEXTTABLE(f.file COLUMNS symbol string, price bigdecimal HEADER) stock"
+----
+
+[source,sql]
+.*Example - queries the text file-based source view*
+----
+mvn exec:java -Dvdb="Portfolio" -Dsql="select * from StockPrices"
+----
+
+[source,sql]
+.*Example - performs a join between the relational source and the text file-based source*
+----
+mvn exec:java -Dvdb="Portfolio" -Dsql="select product.symbol, stock.price, company_name from product, (call MarketData.getTextFiles('*.txt')) f, TEXTTABLE(f.file COLUMNS symbol string, price bigdecimal HEADER) stock where product.symbol=stock.symbol"
+----
+
+NOTE: The files returned from the getTextFiles procedure are passed to the TEXTTABLE table function (via the nested table correlated reference f.file). The TEXTTABLE function expects a text file with a HEADER containing entries for at least symbol and price columns.
+
+[source,sql]
+.*Example - queries the federated view*
+----
+mvn exec:java -Dvdb="Portfolio" -Dsql="select * from Stock"
+----
+
+[source,sql]
+.*Example - native query*
+----
+mvn exec:java -Dvdb="Portfolio" -Dsql="select x.* FROM (call native('select Shares_Count, MONTHNAME(Purchase_Date) from Holdings')) w, ARRAYTABLE(w.tuple COLUMNS "Shares_Count" integer, "MonthPurchased" string ) AS x"
+----
+
+NOTE: Issue query that contains a NATIVE sql call that will be directly issued against the H2 database. This is useful if the function isn't supported by the translator (check the documentation for the types of translators that support NATIVE sql). Note that the translator override in the vdb xml enabling support for native queries has to be set.
+
+[source,sql]
+.*Example - SQL*
 ----
 SELECT * FROM product
 SELECT stock.* from (call MarketData.getTextFiles('*.txt')) f, TEXTTABLE(f.file COLUMNS symbol string, price bigdecimal HEADER) stock
