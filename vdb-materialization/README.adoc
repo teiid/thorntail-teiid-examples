@@ -142,11 +142,59 @@ once build success, a `vdb-materialization-swarm.jar` will generated under 'targ
 java -jar vdb-materialization-swarm.jar
 ----
 
-To test the example, execute the following sql, either use a sql client like SQuirreL, or run programatically with Teiid JDBC Driver. 
+By default, jdbc transport bind on `0.0.0.0` and port `31000`, system properties can be used eto bind a specific IP and Port, to bind a IP use `-Dswarm.bind.address=127.0.0.1`, to bind a port use `-Dswarm.teiid.jdbc.port=31000`.
+
+== Query Demonstrations
+
+link:../simpleclient/README.adoc#_execution[Simple Java Client] for sample SQL Queries, link:../simpleclient/SQuirreL.adoc[SQuirreL Client] for a fully featured SQL Queries.
 
 [source,sql]
+.*Example - Query the external materialized View*
 ----
-select * from StocksMatModel.stockPricesMatView
+mvn exec:java -Dvdb="PortfolioMaterialize" -Dsql="select * from StocksMatModel.stockPricesMatView"
+----
+
+[source,sql]
+.*Example - Query the internal materialized View*
+----
+mvn exec:java -Dvdb="PortfolioInterMaterialize" -Dsql="select * from StocksMatModel.stockPricesInterMatView"
+----
+
+[source,sql]
+.*Example - Query external materialization*
+----
+mvn exec:java -Dvdb="PortfolioMaterialize" -Dsql="select * from StocksMatModel.stockPricesMatView"
+mvn exec:java -Dvdb="PortfolioMaterialize" -Dsql="INSERT INTO PRODUCT (ID,SYMBOL,COMPANY_NAME) VALUES(2000,'RHT','Red Hat Inc')"
+mvn exec:java -Dvdb="PortfolioMaterialize" -Dsql="select * from StocksMatModel.stockPricesMatView"
+----
+
+NOTE: First, execute `select * from StocksMatModel.stockPricesMatView` will get 18 rows, insert a new row into Product table(`INSERT INTO PRODUCT (ID,SYMBOL,COMPANY_NAME) VALUES(2000,'RHT','Red Hat Inc')`), wait 1 minute, as defined by: "teiid_rel:MATVIEW_TTL" 60000 in the portfolio-vdb.xml, re-execute `select * from StocksMatModel.stockPricesMatView` will get 19 rows,
+
+
+[source,sql]
+.*Example - Query the original source*
+----
+mvn exec:java -Dvdb="PortfolioMaterialize" -Dsql="select * from StocksMatModel.stockPricesMatView option nocache"
+----
+
+[source,sql]
+.*Example - Query Materialized view status*
+----
+mvn exec:java -Dvdb="PortfolioMaterialize" -Dsql="EXEC SYSADMIN.matViewStatus('StocksMatModel', 'stockPricesMatView')"
+mvn exec:java -Dvdb="PortfolioInterMaterialize" -Dsql="EXEC SYSADMIN.matViewStatus('StocksMatModel', 'stockPricesInterMatView')"
+----
+
+[source,sql]
+.*Example - Perform a complete refresh*
+----
+mvn exec:java -Dvdb="PortfolioMaterialize" -Dsql="EXEC SYSADMIN.loadMatView('StocksMatModel', 'stockPricesMatView')"
+mvn exec:java -Dvdb="PortfolioInterMaterialize" -Dsql="EXEC SYSADMIN.loadMatView('StocksMatModel', 'stockPricesInterMatView')"
+----
+
+[source,sql]
+.*Example - SQL*
+----
+select * from StocksMatModel.stockPricesMatView 
 select * from StocksMatModel.stockPricesInterMatView
 INSERT INTO PRODUCT (ID,SYMBOL,COMPANY_NAME) VALUES(2000,'RHT','Red Hat Inc')
 select * from StocksMatModel.stockPricesMatView option nocache
