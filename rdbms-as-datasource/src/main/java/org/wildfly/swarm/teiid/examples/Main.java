@@ -24,11 +24,10 @@ public class Main {
         swarm.start();
 
         // 2. deploy data sources
-        swarm.deploy(Swarm.artifact("com.h2database:h2", "h2"));
         DatasourceArchive dsArchive = ShrinkWrap.create(DatasourceArchive.class);
         dsArchive.dataSource("accounts-ds", (ds) -> {
             ds.connectionUrl(URL);
-            ds.driverName("h2");
+            ds.driverName("h2"); // the 'h2' are auto-detected, and registered dynamic 
             ds.userName("sa");
             ds.password("sa");
         });

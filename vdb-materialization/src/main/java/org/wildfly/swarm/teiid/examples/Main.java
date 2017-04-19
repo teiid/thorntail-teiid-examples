@@ -24,20 +24,15 @@ public class Main {
     
     public static void main(String[] args) throws Exception {
         
-        setupSources();
+        setupSampleSources();
         
         Swarm swarm = new Swarm();        
         swarm.fraction(new TeiidFraction()
                  .translator("h2", t -> t.module("org.jboss.teiid.translator.jdbc"))
                  .translator("file", t -> t.module("org.jboss.teiid.translator.file")))
              .fraction(new DatasourcesFraction()
-                 .jdbcDriver("h2", driver -> {
-                     driver.driverClassName("org.h2.Driver");
-                     driver.xaDatasourceClass("org.h2.jdbcx.JdbcDataSource");
-                     driver.driverModuleName("com.h2database.h2");
-                 })
                  .dataSource("accounts-ds", ds -> {
-                     ds.driverName("h2");
+                     ds.driverName("h2"); // the 'h2' are auto-detected, and registered dynamic
                      ds.connectionUrl(URL);
                      ds.userName("sa");
                      ds.password("sa");
@@ -61,7 +56,7 @@ public class Main {
         swarm.deploy(intermatvdb);
     }
 
-    private static void setupSources() throws Exception {
+    private static void setupSampleSources() throws Exception {
 
         Connection conn = JDBCUtils.getDriverConnection("org.h2.Driver", URL, "sa", "sa");
         RunScript.execute(conn, new InputStreamReader(Main.class.getClassLoader().getResourceAsStream("teiidfiles/customer-schema.sql")));
