@@ -9,7 +9,8 @@
     <description>WildFly Swarm Teiid Examples</description>
     
     <properties>
-        <version.wildfly-swarm>2017.4.0</version.wildfly-swarm>
+        <version.wildfly-swarm>2017.6.0-SNAPSHOT</version.wildfly-swarm>
+        <version.io.fabric8>0.20.1</version.io.fabric8>
         <version.teiid>9.2.0.Final</version.teiid>
         <version.h2>1.4.187</version.h2>
         
@@ -34,6 +35,11 @@
                     <groupId>org.wildfly.swarm</groupId>
                     <artifactId>wildfly-swarm-plugin</artifactId>
                     <version>${version.wildfly-swarm}</version>
+                </plugin>
+                <plugin>
+                    <groupId>io.fabric8</groupId>
+                    <artifactId>docker-maven-plugin</artifactId>
+                    <version>${version.io.fabric8}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
