@@ -2,7 +2,6 @@
 <vdb name="Portfolio" version="1">
 
     <description>The Portfolio VDB</description>
-    <property name="UseConnectorMetadata" value="true" />
 
 
     <model name="Accounts">
