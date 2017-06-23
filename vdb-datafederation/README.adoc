@@ -137,6 +137,29 @@ java -jar vdb-datafederation-swarm.jar
 
 By default, jdbc transport bind on `0.0.0.0` and port `31000`, system properties can be used eto bind a specific IP and Port, to bind a IP use `-Dswarm.bind.address=127.0.0.1`, to bind a port use `-Dswarm.teiid.jdbc.port=31000`.
 
+== Run with Docker
+
+* Build docker image via
+
+[source,shell]
+----
+docker build -t vdb-datafederation-swarm .
+----
+
+* Run the example, mapping your machine’s port 31000 to the container’s EXPOSE port 31000 using -p: 
+
+[source,shell]
+----
+docker run -p 31000:31000 vdb-datafederation-swarm
+----
+
+* Alternatively, the example can run from a DockerHub image
+
+[source,shell]
+----
+docker run -p 31000:31000 kylinsoong/vdb-datafederation-swarm:1.0
+----
+
 == Query Demonstrations
 
 link:../simpleclient/README.adoc#_execution[Simple Java Client] for sample SQL Queries, link:../simpleclient/SQuirreL.adoc[SQuirreL Client] for a fully featured SQL Queries.
@@ -191,3 +214,4 @@ SELECT product.symbol, stock.price, company_name from product, (call MarketData.
 SELECT * FROM Stock
 SELECT x.* FROM (call native('select Shares_Count, MONTHNAME(Purchase_Date) from Holdings')) w, ARRAYTABLE(w.tuple COLUMNS "Shares_Count" integer, "MonthPurchased" string ) AS x
 ----
+
