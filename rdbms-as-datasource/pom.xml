@@ -25,7 +25,7 @@
         </dependency>   
 	    
 	    <dependency>
-	        <groupId>org.jboss.teiid.connectors</groupId>
+	        <groupId>org.teiid.connectors</groupId>
 	        <artifactId>translator-jdbc</artifactId>
 	        <version>${version.teiid}</version>
 	    </dependency>
