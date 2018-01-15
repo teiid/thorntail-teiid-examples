@@ -1,5 +1,7 @@
 = WildFly swarm teiid example
 
+*PLEASE NOTE THESE EXAMPLES ARE WRITTEN FOR PREVIOUS VERSION OF WILDFLY-SWARM AND TEIID, NOT BEEN VERIFIED WITH CURRENT VERSION OF TEIID*
+
 This takes you through an introduction to the concepts important to Teiid, WildFly swarm. Read https://teiid.gitbooks.io/documents/content/[Teiid Documentation] and http://wildfly-swarm.io/documentation/[WildFly Swarm Documentation]to understand different terminologies used, resources needed, and artifacts to be generated before developing a successful application. 
 
 
