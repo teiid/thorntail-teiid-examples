@@ -1,68 +1,94 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.wildfly.swarm.teiid.examples</groupId>
-        <artifactId>examples-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-    </parent> 
-    <artifactId>rdbms-as-datasource</artifactId>  
-    <packaging>jar</packaging>
-    <name>RDBMS as datasource</name>
-    <description>WildFly Swarm Teiid RDBMS as datasource</description>
-
-    <dependencies>      
-	    <dependency>
-	        <groupId>org.wildfly.swarm</groupId>
-	        <artifactId>teiid</artifactId>
-	        <version>${version.wildfly-swarm}</version>
-	    </dependency>
-	    
-	    <dependency>
-            <groupId>org.wildfly.swarm</groupId>
-            <artifactId>datasources</artifactId>
-            <version>${version.wildfly-swarm}</version>
-        </dependency>   
-	    
-	    <dependency>
-	        <groupId>org.teiid.connectors</groupId>
-	        <artifactId>translator-jdbc</artifactId>
-	        <version>${version.teiid}</version>
-	    </dependency>
-	    
-	    <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${version.h2}</version>
-        </dependency>
-
-
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.example</groupId>
+  <artifactId>rdbms-as-datasource</artifactId>
+  <name>WildFly Swarm Based Teiid Example showing RDBMS as data source</name>
+  <version>1.0.0</version>
+  <packaging>vdb</packaging>
+  <properties>
+    <version.wildfly.swarm>2018.2.0</version.wildfly.swarm>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <version.h2>1.4.196</version.h2>
+    <version.teiid>10.0.0.Final</version.teiid>
+  </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.wildfly.swarm</groupId>
+        <artifactId>bom-all</artifactId>
+        <version>${version.wildfly.swarm}</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
     </dependencies>
-
-    <build>
-        <finalName>${project.artifactId}</finalName>
-        <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-        <plugins>
-	        <plugin>
-                <groupId>org.wildfly.swarm</groupId>
-                <artifactId>wildfly-swarm-plugin</artifactId>
-                <configuration>
-                    <mainClass>org.wildfly.swarm.teiid.examples.Main</mainClass>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>package</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+  </dependencyManagement>
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.wildfly.swarm</groupId>
+        <artifactId>wildfly-swarm-plugin</artifactId>
+        <version>${version.wildfly.swarm}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>package</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <arguments>
+            <argument>-S</argument>
+            <argument>local</argument>
+          </arguments>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.teiid</groupId>
+        <artifactId>vdb-maven-plugin</artifactId>
+        <version>1.1</version>
+        <extensions>true</extensions>
+        <executions>
+          <execution>
+            <id>build</id>
+            <goals>
+              <goal>vdb</goal>
+            </goals>
+            <configuration>
+              <!-- your configuration here -->
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <version>${version.h2}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>teiid</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>teiid-jdbc</artifactId>
+    </dependency>
+<!--
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>odata</artifactId>
+    </dependency> 
+-->
+  </dependencies>
 </project>
-
