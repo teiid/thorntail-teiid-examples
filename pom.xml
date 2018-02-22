@@ -20,8 +20,6 @@
     </properties>
     
     <modules>
-        <module>empty-source</module>
-        <module>loopback-source</module>
         <module>rdbms-as-datasource</module>
         <module>vdb-datafederation</module>
         <module>vdb-materialization</module>

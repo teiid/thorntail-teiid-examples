@@ -1,0 +1,8 @@
+swarm:
+  datasources:
+    data-sources:
+      accountsDS:
+        driver-name: mysql
+        connection-url: jdbc:mysql://localhost:3306/ACCOUNTS
+        user-name: root
+        password: my-secret-pw
