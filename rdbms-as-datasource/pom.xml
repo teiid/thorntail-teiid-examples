@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
   <modelVersion>4.0.0</modelVersion>
-  <groupId>com.example</groupId>
+  <groupId>org.teiid.wfs</groupId>
   <artifactId>rdbms-as-datasource</artifactId>
   <name>WildFly Swarm Based Teiid Example showing RDBMS as data source</name>
   <version>1.0.0</version>
@@ -11,8 +11,7 @@
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <version.h2>1.4.196</version.h2>
-    <version.teiid>10.0.0.Final</version.teiid>
+    <mysql.version>5.1.6</mysql.version>
   </properties>
   <dependencyManagement>
     <dependencies>
@@ -71,11 +70,11 @@
     </plugins>
   </build>
   <dependencies>
-    <dependency>
-      <groupId>com.h2database</groupId>
-      <artifactId>h2</artifactId>
-      <version>${version.h2}</version>
-    </dependency>
+	<dependency>
+	    <groupId>mysql</groupId>
+	    <artifactId>mysql-connector-java</artifactId>
+	    <version>${mysql.version}</version>
+	</dependency>
     <dependency>
       <groupId>org.wildfly.swarm</groupId>
       <artifactId>teiid</artifactId>
@@ -84,11 +83,9 @@
       <groupId>org.wildfly.swarm</groupId>
       <artifactId>teiid-jdbc</artifactId>
     </dependency>
-<!--
     <dependency>
       <groupId>org.wildfly.swarm</groupId>
       <artifactId>odata</artifactId>
     </dependency> 
--->
   </dependencies>
 </project>

@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <vdb name="Portfolio" version="1">
+    
     <description>The Portfolio VDB</description>
+    
     <model name="Accounts">
         <property name="importer.useFullSchemaName" value="false"/>
-        <source name="h2-connector" translator-name="translator-h2" connection-jndi-name="java:jboss/datasources/accounts-ds"/>
+        <source name="mysql-connector" translator-name="mysql5" connection-jndi-name="java:jboss/datasources/accountsDS"/>
     </model>
-    
-    <translator name="translator-h2" type="h2">
-        <property name="SupportsNativeQueries" value="true"/>
-    </translator>
 
 </vdb>

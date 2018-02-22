@@ -1,43 +1,12 @@
-DROP TABLE IF EXISTS status;
-DROP TABLE IF EXISTS h2_stock_mat;
-DROP TABLE IF EXISTS mat_stock_staging;
+DROP DATABASE IF EXISTS ACCOUNTS;
+CREATE DATABASE ACCOUNTS;
+USE ACCOUNTS;
+SET sql_mode = '';
+
 DROP TABLE IF EXISTS CUSTOMER;
 DROP TABLE IF EXISTS ACCOUNT;
 DROP TABLE IF EXISTS PRODUCT;
 DROP TABLE IF EXISTS HOLDINGS;
-DROP TABLE IF EXISTS HT_ProductInfo;
-
-CREATE TABLE status
-(
-  VDBName varchar(50) not null,
-  VDBVersion varchar(50) not null,
-  SchemaName varchar(50) not null,
-  Name varchar(256) not null,
-  TargetSchemaName varchar(50),
-  TargetName varchar(256) not null,
-  Valid boolean not null,
-  LoadState varchar(25) not null,
-  Cardinality long,
-  Updated timestamp not null,
-  LoadNumber long not null,
-  PRIMARY KEY (VDBName, VDBVersion, SchemaName, Name)
-);
-
-CREATE TABLE h2_stock_mat
-(
-   product_id integer,
-   SYMBOL varchar(16),
-   PRICE decimal(20,4),
-   COMPANY_NAME varchar(256)            
-);
-
-CREATE TABLE mat_stock_staging
-(
-   product_id integer,
-   SYMBOL varchar(16),
-   PRICE decimal(20,4),
-   COMPANY_NAME varchar(256)            
-);
 
 CREATE TABLE CUSTOMER
 (
@@ -76,21 +45,13 @@ CREATE TABLE  PRODUCT (
 
 CREATE TABLE  HOLDINGS
 (
-   TRANSACTION_ID integer IDENTITY,
+   TRANSACTION_ID integer AUTO_INCREMENT,
    ACCOUNT_ID integer,
    PRODUCT_ID integer,
    PURCHASE_DATE timestamp,
    SHARES_COUNT integer,
    CONSTRAINT HOLDINGS_PK PRIMARY KEY (TRANSACTION_ID)
 );
-
-CREATE TABLE  HT_ProductInfo 
-(
-	id integer not null, 
-	hib_sess_id CHAR(36)
-);
-
-
 
 INSERT INTO CUSTOMER (SSN,FIRSTNAME,LASTNAME,ST_ADDRESS,APT_NUMBER,CITY,STATE,ZIPCODE,PHONE) VALUES ('CST01002','Joseph','Smith','1234 Main Street','Apartment 56','New York','New York','10174','(646)555-1776');
 INSERT INTO CUSTOMER (SSN,FIRSTNAME,LASTNAME,ST_ADDRESS,APT_NUMBER,CITY,STATE,ZIPCODE,PHONE) VALUES ('CST01003','Nicholas','Ferguson','202 Palomino Drive',null,'Pittsburgh','Pennsylvania','15071','(412)555-4327');
@@ -195,5 +156,3 @@ INSERT INTO HOLDINGS (ACCOUNT_ID,PRODUCT_ID,PURCHASE_DATE,SHARES_COUNT) VALUES (
 INSERT INTO HOLDINGS (ACCOUNT_ID,PRODUCT_ID,PURCHASE_DATE,SHARES_COUNT) VALUES (20020036,1012,'2002-03-22 00:00:00.000',54);
 INSERT INTO HOLDINGS (ACCOUNT_ID,PRODUCT_ID,PURCHASE_DATE,SHARES_COUNT) VALUES (20020036,1010,'2002-03-26 00:00:00.000',189);
 INSERT INTO HOLDINGS (ACCOUNT_ID,PRODUCT_ID,PURCHASE_DATE,SHARES_COUNT) VALUES (19980005,1010,'2002-04-01 00:00:00.000',26);
-
-

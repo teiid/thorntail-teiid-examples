@@ -1,8 +1,8 @@
 swarm:
   datasources:
     data-sources:
-      accounts-ds:
-        driver-name: h2
-        connection-url: jdbc:h2:mem:test;INIT=runscript from 'customer-schema.sql';
-        user-name: sa
-        password: sa
+      accountsDS:
+        driver-name: mysql
+        connection-url: jdbc:mysql://localhost:3306/ACCOUNTS
+        user-name: root
+        password: my-secret-pw
