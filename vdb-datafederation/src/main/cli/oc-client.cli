@@ -1,0 +1,76 @@
+
+$ oc login https://192.168.42.107:8443 -u developer -p developer
+$ oc new-project teiid-data-service
+
+
+$ oc new-app --docker-image=registry.access.redhat.com/rhscl/mysql-57-rhel7:latest --name=mysql-apaccustomers -e MYSQL_USER=test_user -e MYSQL_PASSWORD=test_pass -e MYSQL_DATABASE=apaccustomers -e MYSQL_ROOT_PASSWORD=redhat
+$ oc port-forward mysql-apaccustomers-1-jb1rb 13306:3306
+$ mysql -h127.0.0.1 -utest_user -ptest_pass -P13306 apaccustomers < src/main/sql/apaccustomers-mysql.sql
+
+
+$ java -Dswarm.datasources.data-sources.APAC_CU_DS.connection-url=jdbc:mysql://127.0.0.1:13306/apaccustomers \
+       -Dswarm.datasources.data-sources.APAC_CU_DS.user-name=test_user \
+       -Dswarm.datasources.data-sources.APAC_CU_DS.password=test_pass \
+       -Dswarm.datasources.data-sources.APAC_CU_DS.driver-name=mysql \
+       -Dswarm.datasources.data-sources.US_CU_DS.connection-url=jdbc:mysql://127.0.0.1:13307/uscustomers \
+       -Dswarm.datasources.data-sources.US_CU_DS.user-name=test_user \
+       -Dswarm.datasources.data-sources.US_CU_DS.password=test_pass \
+       -Dswarm.datasources.data-sources.US_CU_DS.driver-name=mysql \
+       -DAB_JOLOKIA_OFF=true -jar target/teiid-openshift-demo-1.0.0-swarm.jar 
+
+http://localhost:8080/odata4/Portfolio/APAC_Customers/$metadata
+http://localhost:8080/odata4/Portfolio/US_Customers/$metadata
+http://localhost:8080/odata4/Portfolio/APAC_Customers_VBL/$metadata
+http://localhost:8080/odata4/Portfolio/US_Customers_VBL/$metadata
+http://localhost:8080/odata4/Portfolio/Customers/$metadata
+
+http://localhost:8080/odata4/Portfolio/APAC_Customers/account?$format=JSON
+http://localhost:8080/odata4/Portfolio/APAC_Customers_VBL/account?$format=JSON
+http://localhost:8080/odata4/Portfolio/US_Customers/account?$format=JSON
+http://localhost:8080/odata4/Portfolio/US_Customers_VBL/account?$format=JSON
+http://localhost:8080/odata4/Portfolio/Customers/account?$format=JSON
+
+
+
+http://localhost:8080/odata4/Portfolio/APAC_CUSTOMERS/account
+http://localhost:8080/odata4/Portfolio/APAC_CUSTOMERS/customer
+http://localhost:8080/odata4/Portfolio/APAC_CUSTOMERS/accountholdings
+
+http://${ROUTE}/odata4/Portfolio/APAC_CUSTOMERS/$metadata
+http://${ROUTE}/odata4/Portfolio/APAC_CUSTOMERS/account
+http://${ROUTE}/odata4/Portfolio/APAC_CUSTOMERS/customer
+http://${ROUTE}/odata4/Portfolio/APAC_CUSTOMERS/accountholdings
+
+
+
+$ oc new-app --docker-image=registry.access.redhat.com/rhscl/mysql-57-rhel7:latest --name=mysql-uscustomers -e MYSQL_USER=test_user -e MYSQL_PASSWORD=test_pass -e MYSQL_DATABASE=uscustomers -e MYSQL_ROOT_PASSWORD=redhat
+$ oc port-forward mysql-uscustomers-1-nvspw 13307:3306
+$ mysql -h127.0.0.1 -utest_user -ptest_pass -P13307 uscustomers < src/main/sql/uscustomers-mysql.sql
+
+
+
+
+
+
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<vdb name="Portfolio" version="1">
+
+    <description>The Portfolio VDB</description>
+
+    <model name="APAC_CUSTOMERS">
+        <property name="importer.useFullSchemaName" value="false"/>
+        <property name="importer.schemaPattern" value="public"/>
+        <source name="mysql-apac" translator-name="mysql5" connection-jndi-name="java:jboss/datasources/APAC_CU_DS"/>
+    </model>
+    
+    <model name="US_CUSTOMERS">
+        <property name="importer.useFullSchemaName" value="false"/>
+        <property name="importer.schemaPattern" value="public"/>
+        <source name="mysql-us" translator-name="mysql5" connection-jndi-name="java:jboss/datasources/US_CU_DS"/>
+    </model>
+
+</vdb>
+
+
+
+

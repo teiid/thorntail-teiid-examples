@@ -12,6 +12,11 @@ This takes you through an introduction to the concepts important to Teiid, WildF
 |JDBC translator, Native Query
 |Shows how to transfer data from a relational database
 |None
+
+|link:vdb-datafederation/README.adoc[vdb-datafederation]
+|Data Federation, JDBC translator, Data as Service, OData4, Microservice
+|Shows how to expose multiple data sources for data federation and expose as a real time data service
+|OpenShift, Mysql
 |===
 
 NOTE: The other examples in this repo are from previous version of WildFly Swarm, and do not work with current version.
