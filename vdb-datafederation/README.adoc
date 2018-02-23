@@ -12,7 +12,7 @@ This example demonstrates:
 
 image:img/teiid-data-service.png[Teiid Data Service]
 
-As above figure, the customers data are currently spread over several databases, one for US Customers data, another for APAC Customers data, the data model in different databases are similar, but there are some difference, for example, the `account` table in `apaccustomers` database use *CustID* represent Customer ID, and in `uscustomers` the `SSN` represent the Customer ID. Some columns data type are also different in different databases. In this example:
+As above figure, the customers data are currently spread over several databases, one for US Customers data, another for APAC Customers data, the data model in different databases are similar, but there are some difference, for example, the `account` table in `apaccustomers` database use *CustID* represent Customer ID, and in `uscustomers` the *SSN* represent the Customer ID. Some columns data type are also different in different databases. In this example:
 
 * The jdbc connector used to connect the databases.
 * The layer based view design pattern create different layers for data composing, the `Virtual Base Layer` is just a series of views that have one-to-one correspendence to each of the source tables; the `Enterprise Data Layer` is resolve the slight semantic differences between the `apaccustomers` and `uscustomers` databases; the `Federated Data Layer` is unite the data between different databases virtually.
