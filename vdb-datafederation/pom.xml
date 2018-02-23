@@ -1,92 +1,154 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
-    <parent>
-        <groupId>org.wildfly.swarm.teiid.examples</groupId>
-        <artifactId>examples-parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-    </parent> 
-    <artifactId>vdb-datafederation</artifactId>  
-    <packaging>jar</packaging>
-    <name>Data Federation</name>
-    <description>WildFly Swarm Teiid vdb datafederation</description>
-
-    <dependencies>      
-	    <dependency>
-	        <groupId>org.wildfly.swarm</groupId>
-	        <artifactId>teiid</artifactId>
-	        <version>${version.wildfly-swarm}</version>
-	    </dependency>
-	    
-	    <dependency>
-            <groupId>org.wildfly.swarm</groupId>
-            <artifactId>datasources</artifactId>
-            <version>${version.wildfly-swarm}</version>
-        </dependency>  
-        
-        <dependency>
-	        <groupId>org.wildfly.swarm</groupId>
-	        <artifactId>resource-adapters</artifactId>
-	        <version>${version.wildfly-swarm}</version>
-	    </dependency> 
-	    
-	    <dependency>
-	        <groupId>org.teiid.connectors</groupId>
-	        <artifactId>translator-jdbc</artifactId>
-	        <version>${version.teiid}</version>
-	    </dependency>
-	    
-	    <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>${version.h2}</version>
-        </dependency>
-        
-        <dependency>
-			<groupId>org.teiid.connectors</groupId>
-			<artifactId>file-api</artifactId>
-			<version>${version.teiid}</version>
-		</dependency>
-        
-        <dependency>
-            <groupId>org.teiid.connectors</groupId>
-            <artifactId>translator-file</artifactId>
-            <version>${version.teiid}</version>
-        </dependency>
-                
-        <dependency>
-			<groupId>org.teiid.connectors</groupId>
-			<artifactId>connector-file</artifactId>
-			<version>${version.teiid}</version>
-		</dependency>
-
-
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.teiid.wfs</groupId>
+  <artifactId>vdb-service</artifactId>
+  <name>WildFly Swarm Based Teiid Example</name>
+  <version>1.0.0</version>
+  <packaging>vdb</packaging>
+  <properties>
+    <version.wildfly.swarm>2018.2.0.Final</version.wildfly.swarm>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <version.io.fabric8>3.5.25</version.io.fabric8>
+    <version.mysql>5.1.40</version.mysql>
+  </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.wildfly.swarm</groupId>
+        <artifactId>bom-all</artifactId>
+        <version>${version.wildfly.swarm}</version>
+        <scope>import</scope>
+        <type>pom</type>
+      </dependency>
     </dependencies>
-
-    <build>
-        <finalName>${project.artifactId}</finalName>
+  </dependencyManagement>
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.wildfly.swarm</groupId>
+        <artifactId>wildfly-swarm-plugin</artifactId>
+        <version>${version.wildfly.swarm}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>package</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <arguments>
+            <argument>-S</argument>
+            <argument>openshift</argument>
+          </arguments>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.teiid</groupId>
+        <artifactId>vdb-maven-plugin</artifactId>
+        <version>1.1</version>
+        <extensions>true</extensions>
+        <executions>
+          <execution>
+            <id>build</id>
+            <goals>
+              <goal>vdb</goal>
+            </goals>
+            <configuration>
+              <!-- your configuration here -->
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <profiles>
+    <profile>
+      <id>openshift</id>
+      <build>
+	    <plugins>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-maven-plugin</artifactId>
+        <version>${version.io.fabric8}</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>resource</goal>
+              <goal>build</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <generator>
+            <includes>
+              <include>wildfly-swarm</include>
+            </includes>
+            <excludes>
+              <exclude>webapp</exclude>
+            </excludes>
+          </generator>
+          <enricher>
+            <config>
+              <wildfly-swarm-health-check>
+                <path>/</path>
+              </wildfly-swarm-health-check>
+            </config>
+          </enricher>
+          <!-- 
         <resources>
-            <resource>
-                <directory>src/main/resources</directory>
-                <filtering>true</filtering>
-            </resource>
+          <labels>
+            <pod>
+              <property>
+                <name>role</name>
+                <value>teiid-data-source-consumer</value>
+              </property>
+            </pod>                                
+          </labels>
         </resources>
-        <plugins>
-	        <plugin>
-                <groupId>org.wildfly.swarm</groupId>
-                <artifactId>wildfly-swarm-plugin</artifactId>
-                <configuration>
-                    <mainClass>org.wildfly.swarm.teiid.examples.Main</mainClass>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>package</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-</project>
+          -->
+        </configuration>
+      </plugin>	    
+	    </plugins>
+      </build>
+    </profile>
+  </profiles>
+  
+  <dependencies>
+  <!--  
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <version>${version.postgresql}</version>
+    </dependency>
+    -->
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>${version.mysql}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>teiid</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>teiid-jdbc</artifactId>
+    </dependency>
 
+    <dependency>
+      <groupId>org.wildfly.swarm</groupId>
+      <artifactId>odata</artifactId>
+    </dependency> 
+    <!--
+-->
+  </dependencies>
+</project>

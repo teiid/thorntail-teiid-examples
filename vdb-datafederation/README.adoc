@@ -1,217 +1,246 @@
+= VDB Data Federation
+:toc: manual
+:toc-placement: preamble
 
-= What is it?
+This example demonstrates:
+
+* How to expose multiple data sources for data federation and how to expose as a real time data service.
+* How to compose data via layer based view design pattern.
+* How to connect multiple data stores and develop VDB service with cloud native enable and microservice enable modern application development way.
+
+== Overview
+
+image:img/teiid-data-service.png[Teiid Data Service]
+
+As above figure, the customers data are currently spread over several databases, one for US Customers data, another for APAC Customers data, the data model in different databases are similar, but there are some difference, for example, the `account` table in `apaccustomers` database use *CustID* represent Customer ID, and in `uscustomers` the *SSN* represent the Customer ID. Some columns data type are also different in different databases. In this example:
+
+* The jdbc connector used to connect the databases.
+* The layer based view design pattern create different layers for data composing, the `Virtual Base Layer` is just a series of views that have one-to-one correspendence to each of the source tables; the `Enterprise Data Layer` is resolve the slight semantic differences between the `apaccustomers` and `uscustomers` databases; the `Federated Data Layer` is unite the data between different databases virtually.
+* The Teiid Data Service is a microservice base on cloud native and modern application development pattern to supply JDBC and OData entrypoint for Data consuming. 
 
 > Please raise any issues found with this example in our JIRA:
 > https://issues.jboss.org/projects/TEIID
 
-This example demonstrates:
+== Project Setup
 
-* how to define a vdb to enable data federation across multiple data sources (i.e., relational and text file).
-* how to use wildfly swarm to configure translaors, resource adapters and run teiid as a swarm uber jar.
+IMPORTANT: This example requires Java 8 JDK or greater and Maven 3.3.x.
 
-== Project `pom.xml`
-
-The project is a normal maven project with `jar` packaging
+The project is a maven project with `vdb` packaging. This is special packaging developed for Teiid based VDB. The `pom.xml` is the key file for building a WFS based application. To enable `vdb` packing you need to add following to your pom.xml
 
 [source,xml]
 ----
-<packaging>jar</packaging>
+<packaging>vdb</packaging>
+
+<build>
+  <plugins>
+      <plugin>
+        <groupId>org.teiid</groupId>
+        <artifactId>vdb-maven-plugin</artifactId>
+        <version>1.1</version>
+                ... see more in pom.xml file
+      </plugin>
+  </plugins>
+</build>
 ----
 
-The project adds a `<plugin>` to configure `wildfly-swarm-plugin` to create the runnable `.jar`.
+This project also require `wildfly-swarm-plugin` to build a uber jar with `-swarm.jar` extension, for that add the following
 
 [source,xml]
 ----
-<plugin>
+<build>
+  <plugins>
+      <plugin>
+        <groupId>org.wildfly.swarm</groupId>
+        <artifactId>wildfly-swarm-plugin</artifactId>
+        <version>${version.wildfly.swarm}</version>
+                ... see more in pom.xml file
+      </plugin>
+   </plugins>
+</build>
+----
+
+The project also require `fabric8-maven-plugin` to deploy the example to Kubernetes or OpenShift, for that add the following
+
+[source,xml]
+----
+<build>
+  <plugins>
+      <plugin>
+        <groupId>io.fabric8</groupId>
+        <artifactId>fabric8-maven-plugin</artifactId>
+        <version>${version.io.fabric8}</version>
+                ... see more in pom.xml file
+      </plugin>
+   </plugins>
+</build>
+----
+
+This project depends on Teiid Fraction and eiid's JDBC translator in WFS, then add the following dependencies
+
+[source,xml]
+----
+<dependency>
   <groupId>org.wildfly.swarm</groupId>
-  <artifactId>wildfly-swarm-plugin</artifactId>
-  <configuration>
-    <mainClass>org.wildfly.swarm.teiid.examples.Main</mainClass>
-  </configuration>
-  ....
-</plugin>
+  <artifactId>teiid</artifactId>
+</dependency>
+
+<dependency>
+  <groupId>org.wildfly.swarm</groupId>
+  <artifactId>teiid-jdbc</artifactId>
+</dependency>
 ----
 
-To define the needed parts of WildFly Swarm, a few dependencies(teiid, datasources, resource-adapters) are added.
+Since we are using the MySQL database, we would need to add dependency on MySQL JDBC driver by adding the following
 
 [source,xml]
 ----
 <dependency>
-    <groupId>org.wildfly.swarm</groupId>
-    <artifactId>teiid</artifactId>
-    <version>${version.wildfly-swarm}</version>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <version>${mysql.version}</version>
 </dependency>
-<dependency>
-    <groupId>org.wildfly.swarm</groupId>
-    <artifactId>datasources</artifactId>
-    <version>${version.wildfly-swarm}</version>
-</dependency>          
-<dependency>
-    <groupId>org.wildfly.swarm</groupId>
-    <artifactId>resource-adapters</artifactId>
-    <version>${version.wildfly-swarm}</version>
-</dependency> 
 ----
 
-To support teiid tranalators/connectors in general, the additional dependencies are added.
+if you want your Teiid instance to expose OData API, then add the following dependency
 
 [source,xml]
 ----
 <dependency>
-    <groupId>org.jboss.teiid.connectors</groupId>
-    <artifactId>translator-jdbc</artifactId>
-    <version>${version.teiid}</version>
-</dependency>
-<dependency>
-    <groupId>com.h2database</groupId>
-    <artifactId>h2</artifactId>
-    <version>${version.h2}</version>
-</dependency>
-<dependency>
-    <groupId>org.jboss.teiid.connectors</groupId>
-    <artifactId>translator-file</artifactId>
-    <version>${version.teiid}</version>
-</dependency>
-<dependency>
-    <groupId>org.jboss.teiid.connectors</groupId>
-    <artifactId>connector-file</artifactId>
-    <version>${version.teiid}</version>
+  <groupId>org.wildfly.swarm</groupId>
+  <artifactId>odata</artifactId>
 </dependency>
 ----
 
-== Project `main()`
+== VDB Setup
 
-This example configured teiid translators, datasource, resource adapter and deploy vdb programatically.
+WFS based Teiid currently only supports XML/DDL based VDBS with -vdb.xml extension. Develop your VDB completely using Desginer perhaps or simply using a text editor, once done place the VDB file in `src/main/vdb` folder.
 
-[source,java]
+== OpenShift Project Setup
+
+A Openshift or Minishift should be started, a oc client should be installed on your local machine, execute the following commands to login into OpenShift and create a new project.
+
+[source, bash]
 ----
-public static void main(String[] args) throws Exception {
-
-    Swarm swarm = new Swarm();        
-    swarm.fraction(new TeiidFraction()
-             .translator("h2", t -> t.module("org.jboss.teiid.translator.jdbc"))
-             .translator("file", t -> t.module("org.jboss.teiid.translator.file")))
-         .fraction(new DatasourcesFraction()
-             .jdbcDriver("h2", driver -> {
-                 driver.driverClassName("org.h2.Driver");
-                 driver.xaDatasourceClass("org.h2.jdbcx.JdbcDataSource");
-                 driver.driverModuleName("com.h2database.h2");
-             })
-             .dataSource("accounts-ds", ds -> {
-                 ds.driverName("h2");
-                 ds.connectionUrl(URL);
-                 ds.userName("sa");
-                 ds.password("sa");
-             }))
-         .fraction(new ResourceAdapterFraction()
-             .resourceAdapter("fileQS", rac -> rac.module("org.jboss.teiid.resource-adapter.file")
-                 .connectionDefinitions("fileQS", cdc -> cdc.className("org.teiid.resource.adapter.file.FileManagedConnectionFactory")
-                     .jndiName("java:/marketdata-file")
-                     .configProperties("ParentDirectory", cpc -> cpc.value(marketdataDir))
-                     .configProperties("AllowParentPaths", cpc -> cpc.value("true")))));
-    swarm.start();
-
-    VDBArchive vdb = ShrinkWrap.create(VDBArchive.class);
-    vdb.vdb(Main.class.getClassLoader().getResourceAsStream("portfolio-vdb.xml"));
-    swarm.deploy(vdb);   
-}
+$ oc login https://192.168.42.107:8443 -u developer -p developer
+$ oc new-project teiid-data-service
 ----
 
-> This example depend on a series of jboss modules, rerfer to `src/main/resources/modules` for details. Alternatively, if you want define moduls externally, you can build the modules externally, then add your modules as a dependency, teiid feature back can be used to build teiid related modules.
+==  APAC Database Setup
 
-== Run
-
-To build the project
-
-[source,java]
+[source, bash]
+.*Create mysql app*
 ----
-mvn clean package
+$ oc new-app --docker-image=registry.access.redhat.com/rhscl/mysql-57-rhel7:latest --name=mysql-apaccustomers -e MYSQL_USER=test_user -e MYSQL_PASSWORD=test_pass -e MYSQL_DATABASE=apaccustomers -e MYSQL_ROOT_PASSWORD=redhat
 ----
 
-once build success, a `vdb-datafederation-swarm.jar` will generated under 'target' folder, run the example via
-
-[source,java]
+[source, bash]
+.*Sample data*
 ----
-java -jar vdb-datafederation-swarm.jar
-----
-
-By default, jdbc transport bind on `0.0.0.0` and port `31000`, system properties can be used eto bind a specific IP and Port, to bind a IP use `-Dswarm.bind.address=127.0.0.1`, to bind a port use `-Dswarm.teiid.jdbc.port=31000`.
-
-== Run with Docker
-
-* Build docker image via
-
-[source,shell]
-----
-docker build -t vdb-datafederation-swarm .
+$ oc port-forward mysql-apaccustomers-1-jb1rb 13306:3306
+$ mysql -h127.0.0.1 -utest_user -ptest_pass -P13306 apaccustomers < src/main/sql/apaccustomers-mysql.sql
 ----
 
-* Run the example, mapping your machine’s port 31000 to the container’s EXPOSE port 31000 using -p: 
+NOTE: `oc get pods` can get the pod name which used in above commands, a new terminal should be open for sample data to mysql. To test or verify the sample data, use the `mysql -h127.0.0.1 -utest_user -ptest_pass -P13306 apaccustomers -e SQL` can execute sql query.
 
-[source,shell]
+NOTE: Although mysql with RedHat cloud native storage(https://access.redhat.com/products/red-hat-ceph-storage[Ceph], https://access.redhat.com/products/red-hat-storage[GlusterFS]) are used frequent by Red Hat Customer, some database like Oracle which lack of cloud native capabilities are not recommend to run on cloud.
+
+
+==  US Database Setup
+
+[source, bash]
+.*Create mysql app*
 ----
-docker run -p 31000:31000 vdb-datafederation-swarm
+$ oc new-app --docker-image=registry.access.redhat.com/rhscl/mysql-57-rhel7:latest --name=mysql-uscustomers -e MYSQL_USER=test_user -e MYSQL_PASSWORD=test_pass -e MYSQL_DATABASE=uscustomers -e MYSQL_ROOT_PASSWORD=redhat
 ----
 
-* Alternatively, the example can run from a DockerHub image
+[source, bash]
+.*Sample data*
+----
+$ oc port-forward mysql-uscustomers-1-9p7g8 13307:3306
+$ mysql -h127.0.0.1 -utest_user -ptest_pass -P13307 uscustomers < src/main/sql/uscustomers-mysql.sql
+----
 
-[source,shell]
+NOTE: `mysql -h127.0.0.1 -utest_user -ptest_pass -P13307 apaccustomers -e SQL` can used to test or verify the sample data.
+
+== Teiid Data Service
+
+[source, bash]
+.*Run locally*
 ----
-docker run -p 31000:31000 kylinsoong/vdb-datafederation-swarm:1.0
+$ mvn clean package
+$ java -Dswarm.datasources.data-sources.APAC_CU_DS.connection-url=jdbc:mysql://127.0.0.1:13306/apaccustomers \
+       -Dswarm.datasources.data-sources.APAC_CU_DS.user-name=test_user \
+       -Dswarm.datasources.data-sources.APAC_CU_DS.password=test_pass \
+       -Dswarm.datasources.data-sources.APAC_CU_DS.driver-name=mysql \
+       -Dswarm.datasources.data-sources.US_CU_DS.connection-url=jdbc:mysql://127.0.0.1:13307/uscustomers \
+       -Dswarm.datasources.data-sources.US_CU_DS.user-name=test_user \
+       -Dswarm.datasources.data-sources.US_CU_DS.password=test_pass \
+       -Dswarm.datasources.data-sources.US_CU_DS.driver-name=mysql \
+       -DAB_JOLOKIA_OFF=true -jar target/vdb-service-1.0.0-swarm.jar
 ----
+
+Once the WFS uber jar started correctly, refer to <<Query Demonstrations, Query Demonstrations>> for data query demonstrations.
+
+[source, bash]
+.*Run on OpenShift*
+----
+$ mvn clean fabric8:deploy -Popenshift
+----
+
+Once the fabric8 deploy success, use the `watch oc get all` to monitor the OpenShift S2I, deployment, once everthing is done refer to <<Query Demonstrations, Query Demonstrations>> for data query demonstrations.
+
+[source, bash]
+.*Run on docker*
+----
+$ docker build -t vdb-datafederation-swarm .
+$ docker tag vdb-datafederation-swarm teiid/vdb-datafederation-swarm:1.0
+$ docker run -p 31000:31000 8080:8080 teiid/vdb-datafederation-swarm:1.0 -e swarm.datasources.data-sources.APAC_CU_DS.connection-url=jdbc:mysql://127.0.0.1:13306/apaccustomers \
+       -e swarm.datasources.data-sources.APAC_CU_DS.user-name=test_user \
+       -e swarm.datasources.data-sources.APAC_CU_DS.password=test_pass \
+       -e swarm.datasources.data-sources.APAC_CU_DS.driver-name=mysql \
+       -e swarm.datasources.data-sources.US_CU_DS.connection-url=jdbc:mysql://127.0.0.1:13307/uscustomers \
+       -e swarm.datasources.data-sources.US_CU_DS.user-name=test_user \
+       -e swarm.datasources.data-sources.US_CU_DS.password=test_pass \
+       -e swarm.datasources.data-sources.US_CU_DS.driver-name=mysql
+----
+
+Once the docker container started, refer to <<Query Demonstrations, Query Demonstrations>> for data query demonstrations.
 
 == Query Demonstrations
 
-link:../simpleclient/README.adoc#_execution[Simple Java Client] for sample SQL Queries, link:../simpleclient/SQuirreL.adoc[SQuirreL Client] for a fully featured SQL Queries.
+To test the jdbc query, execute the `oc port-forward vdb-service-1-xsf9b 31100:31000` to forward the port, the use `jdbc:teiid:Portfolio@mm://127.0.0.1:31100;version=1` to create the JDBC Connection. The below is the welcome page of http://squirrel-sql.sourceforge.net/[Squirrel SQL Client]:
 
-[source,sql]
-.*Example - queries the relational source*
-----
-mvn exec:java -Dvdb="Portfolio" -Dsql="select * from product"
-----
+image:img/jdbc-query.png[JDBC Query]
 
-[source,sql]
-.*Example - queries the text file-based source*
-----
-mvn exec:java -Dvdb="Portfolio" -Dsql="select stock.* from (call MarketData.getTextFiles('*.txt')) f, TEXTTABLE(f.file COLUMNS symbol string, price bigdecimal HEADER) stock"
-----
+From the figure, there are layers view model like `APAC_Customers`, `APAC_Customers_VBL`, `US_Customers`, `US_Customers_VBL`, the `Customers` is the top union model.
 
-[source,sql]
-.*Example - queries the text file-based source view*
-----
-mvn exec:java -Dvdb="Portfolio" -Dsql="select * from StockPrices"
-----
-
-[source,sql]
-.*Example - performs a join between the relational source and the text file-based source*
-----
-mvn exec:java -Dvdb="Portfolio" -Dsql="select product.symbol, stock.price, company_name from product, (call MarketData.getTextFiles('*.txt')) f, TEXTTABLE(f.file COLUMNS symbol string, price bigdecimal HEADER) stock where product.symbol=stock.symbol"
-----
-
-NOTE: The files returned from the getTextFiles procedure are passed to the TEXTTABLE table function (via the nested table correlated reference f.file). The TEXTTABLE function expects a text file with a HEADER containing entries for at least symbol and price columns.
-
-[source,sql]
-.*Example - queries the federated view*
-----
-mvn exec:java -Dvdb="Portfolio" -Dsql="select * from Stock"
-----
-
-[source,sql]
-.*Example - native query*
-----
-mvn exec:java -Dvdb="Portfolio" -Dsql="select x.* FROM (call native('select Shares_Count, MONTHNAME(Purchase_Date) from Holdings')) w, ARRAYTABLE(w.tuple COLUMNS "Shares_Count" integer, "MonthPurchased" string ) AS x"
-----
-
-NOTE: Issue query that contains a NATIVE sql call that will be directly issued against the H2 database. This is useful if the function isn't supported by the translator (check the documentation for the types of translators that support NATIVE sql). Note that the translator override in the vdb xml enabling support for native queries has to be set.
-
-[source,sql]
+[source, sql]
 .*Example - SQL*
 ----
-SELECT * FROM product
-SELECT stock.* from (call MarketData.getTextFiles('*.txt')) f, TEXTTABLE(f.file COLUMNS symbol string, price bigdecimal HEADER) stock
-SELECT * FROM StockPrices
-SELECT product.symbol, stock.price, company_name from product, (call MarketData.getTextFiles('*.txt')) f, TEXTTABLE(f.file COLUMNS symbol string, price bigdecimal HEADER) stock where product.symbol=stock.symbol
-SELECT * FROM Stock
-SELECT x.* FROM (call native('select Shares_Count, MONTHNAME(Purchase_Date) from Holdings')) w, ARRAYTABLE(w.tuple COLUMNS "Shares_Count" integer, "MonthPurchased" string ) AS x
+SELECT * FROM APAC_Customers.account
+SELECT * FROM APAC_Customers_VBL.account
+SELECT * FROM US_Customers.account
+SELECT * FROM US_Customers.marketdata
+SELECT * FROM US_Customers_VBL.account
+SELECT * FROM Customers.account
+----
+
+To test the OData query, you need first get the hostname and port, if run locally, the `127.0.0.1:8080` is a valid host, if run on Openshift, the `oc get routes` can ge the host url.
+
+[source, text]
+.*Example - URL*
+----
+http://${HOSTS}/odata4/Portfolio.1/APAC_Customers/$metadata
+http://${HOSTS}/odata4/Portfolio.1/US_Customers/$metadata
+http://${HOSTS}/odata4/Portfolio.1/APAC_Customers_VBL/$metadata
+http://${HOSTS}/odata4/Portfolio.1/US_Customers_VBL/$metadata
+http://${HOSTS}/odata4/Portfolio.1/Customers/$metadata
+
+http://${HOSTS}/odata4/Portfolio.1/APAC_Customers/account?$format=JSON
+http://${HOSTS}/odata4/Portfolio.1/APAC_Customers_VBL/account?$format=JSON
+http://${HOSTS}/odata4/Portfolio.1/US_Customers/account?$format=JSON
+http://${HOSTS}/odata4/Portfolio.1/US_Customers/marketdata?$format=JSON
+http://${HOSTS}/odata4/Portfolio.1/US_Customers_VBL/account?$format=JSON
+http://${HOSTS}/odata4/Portfolio.1/Customers/account?$format=JSON
 ----
 

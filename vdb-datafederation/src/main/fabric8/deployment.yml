@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: Deployment
+metadata:
+  name: ${project.artifactId}
+  labels:
+    application: das-service
+spec:
+  template:
+    spec:
+      containers:
+        - env:
+            - name: "AB_OFF"
+              value: "true"
+            - name: "AB_JOLOKIA_OFF"
+              value: "true"
+            - name: APAC_DB_USERNAME
+              value: test_user
+            - name: APAC_DB_PASSWORD
+              value: test_pass
+            - name: APAC_DATABASE_NAME
+              value: apaccustomers
+            - name: APAC_DATABASE_HOST
+              value: mysql-apaccustomers
+            - name: APAC_DATABASE_PORT
+              value: 3306
+            - name: US_DB_USERNAME
+              value: test_user
+            - name: US_DB_PASSWORD
+              value: test_pass
+            - name: US_DATABASE_NAME
+              value: uscustomers
+            - name: US_DATABASE_HOST
+              value: mysql-uscustomers
+            - name: US_DATABASE_PORT
+              value: 3306
+            - name: JAVA_OPTIONS
+              value: "-Dswarm.datasources.data-sources.APAC_CU_DS.connection-url=jdbc:mysql://$(APAC_DATABASE_HOST):$(APAC_DATABASE_PORT)/$(APAC_DATABASE_NAME) 
+                      -Dswarm.datasources.data-sources.APAC_CU_DS.user-name=$(APAC_DB_USERNAME) 
+                      -Dswarm.datasources.data-sources.APAC_CU_DS.password=$(APAC_DB_PASSWORD) 
+                      -Dswarm.datasources.data-sources.APAC_CU_DS.driver-name=mysql
+                      -Dswarm.datasources.data-sources.US_CU_DS.connection-url=jdbc:mysql://$(US_DATABASE_HOST):$(US_DATABASE_PORT)/$(US_DATABASE_NAME) 
+                      -Dswarm.datasources.data-sources.US_CU_DS.user-name=$(US_DB_USERNAME) 
+                      -Dswarm.datasources.data-sources.US_CU_DS.password=$(US_DB_PASSWORD) 
+                      -Dswarm.datasources.data-sources.US_CU_DS.driver-name=mysql
+                      -DAB_JOLOKIA_OFF=true"
+                                         
