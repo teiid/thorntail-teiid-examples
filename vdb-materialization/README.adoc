@@ -7,7 +7,7 @@
 This example demonstrates:
 
 * how to define a vdb to enable data federation across multiple data sources (i.e., relational and text file).
-* how to configure external/internal materialization(https://teiid.gitbooks.io/documents/content/caching/Materialized_Views.html[document external/internal materialization]), so that caching can be used to improve query performance.
+* how to configure external/internal materialization(http://teiid.github.io/teiid-documents/master/content/caching/Materialized_Views.html[document external/internal materialization]), so that caching can be used to improve query performance.
 * how to use wildfly swarm to configure translaors, resource adapters and run teiid as a swarm uber jar.
 
 == Project `pom.xml`
