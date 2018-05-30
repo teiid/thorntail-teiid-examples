@@ -1,0 +1,19 @@
+swarm:
+  resource-adapters:
+    resource-adapters:
+      sfDS:
+        module: org.jboss.teiid.resource-adapter.salesforce-41
+        transaction-support: NoTransaction
+        connection-definitions:
+          sfDS:
+            class-name: org.teiid.resource.adapter.salesforce.SalesForceManagedConnectionFactory
+            jndi-name: java:/sfDS
+            enabled: true
+            use-java-context: true
+            config-properties:
+              URL:
+                value: https://login.salesforce.com/services/Soap/u/40.0
+              username:
+                value: user
+              password:
+                value: pass

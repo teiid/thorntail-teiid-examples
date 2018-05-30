@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<vdb name="salesforce" version="1">
+    <description>Exposing the SalesForce data through Data Virtualization</description>
+    <model name="sf">
+        <property name="importer.useFullSchemaName" value="false"/>
+        <source name="sf-connector" translator-name="salesforce-41" connection-jndi-name="java:/sfDS"/>
+    </model>
+</vdb>
