@@ -25,7 +25,7 @@ As above figure, the customers data are currently spread over several databases,
 
 IMPORTANT: This example requires Java 8 JDK or greater and Maven 3.3.x.
 
-The project is a maven project with `vdb` packaging. This is special packaging developed for Teiid based VDB. The `pom.xml` is the key file for building a WFS based application. To enable `vdb` packing you need to add following to your pom.xml
+The project is a maven project with `vdb` packaging. This is special packaging developed for Teiid based VDB. The `pom.xml` is the key file for building a Thorntail based application. To enable `vdb` packing you need to add following to your pom.xml
 
 [source,xml]
 ----
@@ -43,23 +43,23 @@ The project is a maven project with `vdb` packaging. This is special packaging d
 </build>
 ----
 
-This project also require `wildfly-swarm-plugin` to build a uber jar with `-swarm.jar` extension, for that add the following
+This project also requires the `thorntail-maven-plugin` to build a uber jar with `-thorntail.jar` extension, for that add the following
 
 [source,xml]
 ----
 <build>
   <plugins>
       <plugin>
-        <groupId>org.wildfly.swarm</groupId>
-        <artifactId>wildfly-swarm-plugin</artifactId>
-        <version>${version.wildfly.swarm}</version>
+        <groupId>io.thorntail</groupId>
+        <artifactId>thorntail-maven-plugin</artifactId>
+        <version>${version.thorntail}</version>
                 ... see more in pom.xml file
       </plugin>
    </plugins>
 </build>
 ----
 
-The project also require `fabric8-maven-plugin` to deploy the example to Kubernetes or OpenShift, for that add the following
+The project also requires `fabric8-maven-plugin` to deploy the example to Kubernetes or OpenShift, for that add the following
 
 [source,xml]
 ----
@@ -75,17 +75,17 @@ The project also require `fabric8-maven-plugin` to deploy the example to Kuberne
 </build>
 ----
 
-This project depends on Teiid Fraction and eiid's JDBC translator in WFS, then add the following dependencies
+This project depends on Teiid Fraction and Teiid's JDBC translator in Thorntail, then add the following dependencies
 
 [source,xml]
 ----
 <dependency>
-  <groupId>org.wildfly.swarm</groupId>
+  <groupId>io.thorntail</groupId>
   <artifactId>teiid</artifactId>
 </dependency>
 
 <dependency>
-  <groupId>org.wildfly.swarm</groupId>
+  <groupId>io.thorntail</groupId>
   <artifactId>teiid-jdbc</artifactId>
 </dependency>
 ----
@@ -106,14 +106,14 @@ if you want your Teiid instance to expose OData API, then add the following depe
 [source,xml]
 ----
 <dependency>
-  <groupId>org.wildfly.swarm</groupId>
+  <groupId>io.thorntail</groupId>
   <artifactId>odata</artifactId>
 </dependency>
 ----
 
 == VDB Setup
 
-WFS based Teiid currently only supports XML/DDL based VDBS with -vdb.xml extension. Develop your VDB completely using Desginer perhaps or simply using a text editor, once done place the VDB file in `src/main/vdb` folder.
+Thorntail based Teiid currently only supports XML/DDL based VDBS with -vdb.xml extension. Develop your VDB completely using Desginer perhaps or simply using a text editor, once done place the VDB file in `src/main/vdb` folder.
 
 == OpenShift Project Setup
 
@@ -176,10 +176,10 @@ $ java -Dswarm.datasources.data-sources.APAC_CU_DS.connection-url=jdbc:mysql://1
        -Dswarm.datasources.data-sources.US_CU_DS.user-name=test_user \
        -Dswarm.datasources.data-sources.US_CU_DS.password=test_pass \
        -Dswarm.datasources.data-sources.US_CU_DS.driver-name=mysql \
-       -DAB_JOLOKIA_OFF=true -jar target/vdb-service-1.0.0-swarm.jar
+       -DAB_JOLOKIA_OFF=true -jar target/vdb-service-1.0.0-thorntail.jar
 ----
 
-Once the WFS uber jar started correctly, refer to <<Query Demonstrations, Query Demonstrations>> for data query demonstrations.
+Once the Thorntail uber jar started correctly, refer to <<Query Demonstrations, Query Demonstrations>> for data query demonstrations.
 
 [source, bash]
 .*Run on OpenShift*
@@ -192,9 +192,9 @@ Once the fabric8 deploy success, use the `watch oc get all` to monitor the OpenS
 [source, bash]
 .*Run on docker*
 ----
-$ docker build -t vdb-datafederation-swarm .
-$ docker tag vdb-datafederation-swarm teiid/vdb-datafederation-swarm:1.0
-$ docker run -p 31000:31000 8080:8080 teiid/vdb-datafederation-swarm:1.0 -e swarm.datasources.data-sources.APAC_CU_DS.connection-url=jdbc:mysql://127.0.0.1:13306/apaccustomers \
+$ docker build -t vdb-datafederation-thorntail .
+$ docker tag vdb-datafederation-thorntail teiid/vdb-datafederation-thorntail:1.0
+$ docker run -p 31000:31000 8080:8080 teiid/vdb-datafederation-thorntail:1.0 -e swarm.datasources.data-sources.APAC_CU_DS.connection-url=jdbc:mysql://127.0.0.1:13306/apaccustomers \
        -e swarm.datasources.data-sources.APAC_CU_DS.user-name=test_user \
        -e swarm.datasources.data-sources.APAC_CU_DS.password=test_pass \
        -e swarm.datasources.data-sources.APAC_CU_DS.driver-name=mysql \

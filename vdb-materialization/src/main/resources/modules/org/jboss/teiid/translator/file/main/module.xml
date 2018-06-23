@@ -5,7 +5,7 @@
     </properties>
     
     <resources>
-        <artifact name="org.jboss.teiid.connectors:translator-file:${version.teiid}"/>
+        <artifact name="org.teiid.connectors:translator-file:${version.teiid}"/>
     </resources>
 
     <dependencies>

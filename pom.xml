@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.wildfly.swarm.teiid.examples</groupId>
+    <groupId>io.thorntail.teiid.examples</groupId>
     <artifactId>examples-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Examples Parent</name>
-    <description>WildFly Swarm Teiid Examples</description>
+    <description>Thorntail Teiid Examples</description>
     
     <properties>
-        <version.wildfly-swarm>2017.6.0</version.wildfly-swarm>
+        <version.thorntail>2.0.0.Final</version.thorntail>
         <version.io.fabric8>0.20.1</version.io.fabric8>
-        <version.teiid>10.0.0.Alpha2</version.teiid>
+        <version.teiid>10.2.0</version.teiid>
         <version.h2>1.4.187</version.h2>
         
         <version.compiler.plugin>3.5.1</version.compiler.plugin>
@@ -31,9 +31,9 @@
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.wildfly.swarm</groupId>
-                    <artifactId>wildfly-swarm-plugin</artifactId>
-                    <version>${version.wildfly-swarm}</version>
+                    <groupId>io.thorntail</groupId>
+                    <artifactId>thorntail-maven-plugin</artifactId>
+                    <version>${version.thorntail}</version>
                 </plugin>
                 <plugin>
                     <groupId>io.fabric8</groupId>

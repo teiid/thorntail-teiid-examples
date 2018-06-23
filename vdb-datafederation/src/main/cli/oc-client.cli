@@ -16,7 +16,7 @@ $ java -Dswarm.datasources.data-sources.APAC_CU_DS.connection-url=jdbc:mysql://1
        -Dswarm.datasources.data-sources.US_CU_DS.user-name=test_user \
        -Dswarm.datasources.data-sources.US_CU_DS.password=test_pass \
        -Dswarm.datasources.data-sources.US_CU_DS.driver-name=mysql \
-       -DAB_JOLOKIA_OFF=true -jar target/teiid-openshift-demo-1.0.0-swarm.jar 
+       -DAB_JOLOKIA_OFF=true -jar target/teiid-openshift-demo-1.0.0-thorntail.jar 
 
 http://localhost:8080/odata4/Portfolio/APAC_Customers/$metadata
 http://localhost:8080/odata4/Portfolio/US_Customers/$metadata

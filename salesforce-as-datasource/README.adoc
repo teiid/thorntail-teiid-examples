@@ -35,15 +35,15 @@ The project is a maven project with `vdb` packaging. This is special packaging d
 </build>
 ----
 
-This project also require `wildfly-swarm-plugin` to build a uber jar with `-swarm.jar` extension, for that add the following
+This project also requires the `thorntail-maven-plugin` to build a uber jar with `-thorntail.jar` extension, for that add the following
 
 ----
 <build>
 	<plugins>
       <plugin>
-        <groupId>org.wildfly.swarm</groupId>
-        <artifactId>wildfly-swarm-plugin</artifactId>
-        <version>${version.wildfly.swarm}</version>
+        <groupId>io.thorntail</groupId>
+        <artifactId>thorntail-maven-plugin</artifactId>
+        <version>${version.thorntail}</version>
       </plugin>	
 	</plugins>
 </build>
@@ -52,15 +52,15 @@ This project also require `wildfly-swarm-plugin` to build a uber jar with `-swar
 This project also depends on following dependencies, namely Teiid and Salesforce translators
 
 ----
-<!-- This adds dependency on Teiid Fraction in WFS -->
+<!-- This adds dependency on Teiid Fraction in Thorntail -->
 <dependency>
-  <groupId>org.wildfly.swarm</groupId>
+  <groupId>io.thorntail</groupId>
   <artifactId>teiid</artifactId>
 </dependency>
 
 <!-- This adds dependency for Teiid's JDBC translator -->
 <dependency>
-  <groupId>org.wildfly.swarm</groupId>
+  <groupId>io.thorntail</groupId>
   <artifactId>teiid-salesforce-41</artifactId>
 </dependency>
 ----
@@ -69,7 +69,7 @@ if you want your Teiid instance to expose OData API, then add the following depe
 
 ----
 <dependency>
-  <groupId>org.wildfly.swarm</groupId>
+  <groupId>io.thorntail</groupId>
   <artifactId>odata</artifactId>
 </dependency> 
 ----
@@ -81,7 +81,7 @@ That completes the defining the `pom.xml`, for complete pom.xml see the example.
 Thorntail based Teiid currently only supports XML/DDL based VDBS with -vdb.xml extension. Develop your VDB completely using Designer perhaps or simply using a text editor, once done place the VDB file in `src/main/vdb` folder.  
 
 == Data Source Configuration
-Data Source configuration is defined by Thorntail. You can see more information about this at http://docs.wildfly-swarm.io/2018.5.0/#_resource_adapters
+Data Source configuration is defined by Thorntail. You can see more information about this at http://docs.wildfly-thorntail.io/2018.5.0/#_resource_adapters
 
 This example provides a sample data configuration file in `src/main/resources` directory with name `project-local.yml` with content 
 
@@ -119,10 +119,10 @@ you can build the project by issuing the following the command
 mvn clean package
 ---- 
 
-this should build the project and if everything went well then it will create a  jar file with `-swarm.jar` file in the `target` directory. You can run the application by running
+this should build the project and if everything went well then it will create a  jar file with `-thorntail.jar` file in the `target` directory. You can run the application by running
 
 ----
-java -jar target/salesforce-as-datasource-1.0.0-swarm.jar -S local 
+java -jar target/salesforce-as-datasource-1.0.0-thorntail.jar -S local 
 ----  
 
 IMPORTANT: `-S local` at the end of command is denoting which configuration file to choose for configuration when application is ran. `-S local` chooses `project-local.yml` file. You can also have say `-S production` to choose a separate file `project-production.yml` file. You can also have multiple configurations, see Thorntail documentation on configuration resolution.
