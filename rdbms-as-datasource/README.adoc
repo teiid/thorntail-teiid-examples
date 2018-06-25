@@ -6,8 +6,8 @@ http://localhost:8080/odata4/Portfolio.1/Accounts/CUSTOMER
 This example demonstrates:
 
 * How to define a vdb and transfer data from a relational database. Please note other data source types are also possible
-* How to use WildFly-Swarm (WFS) to configure VDB, configure data sources and run Teiid as a WFS uber jar.
-* Shows how access OData interface running Teiid with WFS.
+* How to use Thorntail to configure VDB, configure data sources and run Teiid as a Thorntail uber jar.
+* Shows how access OData interface running Teiid with Thorntail.
 
 = Building the Example
 The following sections define steps to code and run the example.
@@ -33,7 +33,7 @@ docker exec -i accounts mysql -uroot -pmy-secret-pw < sql/customer-schema.sql
 
 IMPORTANT: This example requires Java 8 JDK or greater and Maven 3.3.x.
 
-The project is a maven project with `vdb` packaging. This is special packaging developed for Teiid based VDB. The `pom.xml` is the key file for building a WFS based application. To enable `vdb` packing you need to add following to your pom.xml 
+The project is a maven project with `vdb` packaging. This is special packaging developed for Teiid based VDB. The `pom.xml` is the key file for building a Thorntail based application. To enable `vdb` packing you need to add following to your pom.xml 
 
 [source,xml]
 ----
@@ -51,15 +51,15 @@ The project is a maven project with `vdb` packaging. This is special packaging d
 </build>
 ----
 
-This project also require `wildfly-swarm-plugin` to build a uber jar with `-swarm.jar` extension, for that add the following
+This project also requires the `thorntail-maven-plugin` to build a uber jar with `-thorntail.jar` extension, for that add the following
 
 ----
 <build>
 	<plugins>
       <plugin>
-        <groupId>org.wildfly.swarm</groupId>
-        <artifactId>wildfly-swarm-plugin</artifactId>
-        <version>${version.wildfly.swarm}</version>
+        <groupId>io.thorntail</groupId>
+        <artifactId>thorntail-maven-plugin</artifactId>
+        <version>${version.thorntail}</version>
 		... see more in pom.xml file	
       </plugin>	
 	</plugins>
@@ -69,15 +69,15 @@ This project also require `wildfly-swarm-plugin` to build a uber jar with `-swar
 This project depends on following dependencies
 
 ----
-<!-- This adds dependency on Teiid Fraction in WFS -->
+<!-- This adds dependency on Teiid Fraction in Thorntail -->
 <dependency>
-  <groupId>org.wildfly.swarm</groupId>
+  <groupId>io.thorntail</groupId>
   <artifactId>teiid</artifactId>
 </dependency>
 
 <!-- This adds dependency for Teiid's JDBC translator -->
 <dependency>
-  <groupId>org.wildfly.swarm</groupId>
+  <groupId>io.thorntail</groupId>
   <artifactId>teiid-jdbc</artifactId>
 </dependency>
 ----
@@ -96,7 +96,7 @@ if you want your Teiid instance to expose OData API, then add the following depe
 
 ----
 <dependency>
-  <groupId>org.wildfly.swarm</groupId>
+  <groupId>io.thorntail</groupId>
   <artifactId>odata</artifactId>
 </dependency> 
 ----
@@ -105,10 +105,10 @@ That completes the defining the `pom.xml`, now we need to define the VDB.
 
 == VDB Setup
 
-WFS based Teiid currently only supports XML/DDL based VDBS with -vdb.xml extension. Develop your VDB completely using Desginer perhaps or simply using a text editor, once done place the VDB file in `src/main/vdb` folder.  
+Thorntail based Teiid currently only supports XML/DDL based VDBS with -vdb.xml extension. Develop your VDB completely using Desginer perhaps or simply using a text editor, once done place the VDB file in `src/main/vdb` folder.  
 
 == Data Source Configuration
-Data Source configuration is defined by WildFly Swarm. You can see more information about this at http://docs.wildfly-swarm.io/2018.1.0/#configuring-a-datasource
+Data Source configuration is defined by Thorntail. You can see more information about this at http://docs.wildfly-swarm.io/2.0.0.Final/#configuring-a-datasource
 
 This example provides a sample data configuration file in `src/main/resources` directory with name `project-local.yml` with content 
 
@@ -125,7 +125,7 @@ swarm:
 
 where the above username and password and URL is built for the MySQL docker instance created above.
 
-IMPORTANT: "accountDS" tag in above YML fragment is what defines the JNDI name that you can use on the VDB's "connection-jndi-name" attribute name in your <model> fragment. When this data configuration is run on WFS a datasource is created with JNDI name resolves to `java:jboss/datasources/accountsDS`. Make sure your names in here match with that of what you defined in the VDB.  
+IMPORTANT: "accountDS" tag in above YML fragment is what defines the JNDI name that you can use on the VDB's "connection-jndi-name" attribute name in your <model> fragment. When this data configuration is run on Thorntail a datasource is created with JNDI name resolves to `java:jboss/datasources/accountsDS`. Make sure your names in here match with that of what you defined in the VDB.  
 
 Now development/configuration is done.
 
@@ -137,13 +137,13 @@ you can build the project by issuing the following the command
 mvn clean package
 ---- 
 
-this should build the project and if everything went well then it will create a  jar file with `-swarm.jar` file in the `target` directory. You can run the application by running
+this should build the project and if everything went well then it will create a  jar file with `-thorntail.jar` file in the `target` directory. You can run the application by running
 
 ----
-java -jar target/rdbms-as-datasource-1.0.0-swarm.jar -S local 
+java -jar target/rdbms-as-datasource-1.0.0-thorntail.jar -S local 
 ----  
 
-IMPORTANT: `-S local` at the end of command is denoting which configuration file to choose for configuration when application is ran. `-S local` chooses `project-local.yml` file. You can also have say `-S production` to choose a separate file `project-production.yml` file. You can also have multiple configurations, see WFS documentation on configuration resolution.
+IMPORTANT: `-S local` at the end of command is denoting which configuration file to choose for configuration when application is ran. `-S local` chooses `project-local.yml` file. You can also have say `-S production` to choose a separate file `project-production.yml` file. You can also have multiple configurations, see Thorntail documentation on configuration resolution.
 
 == Query Demonstrations
 

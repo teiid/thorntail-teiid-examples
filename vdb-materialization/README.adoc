@@ -8,7 +8,7 @@ This example demonstrates:
 
 * how to define a vdb to enable data federation across multiple data sources (i.e., relational and text file).
 * how to configure external/internal materialization(http://teiid.github.io/teiid-documents/master/content/caching/Materialized_Views.html[document external/internal materialization]), so that caching can be used to improve query performance.
-* how to use wildfly swarm to configure translaors, resource adapters and run teiid as a swarm uber jar.
+* how to use Thorntail to configure translators, resource adapters and run teiid as a Thorntail uber jar.
 
 == Project `pom.xml`
 
@@ -19,47 +19,47 @@ The project is a normal maven project with `jar` packaging
 <packaging>jar</packaging>
 ----
 
-The project adds a `<plugin>` to configure `wildfly-swarm-plugin` to create the runnable `.jar`.
+The project adds a `<plugin>` to configure `thorntail-maven-plugin` to create the runnable `.jar`.
 
 [source,xml]
 ----
 <plugin>
-  <groupId>org.wildfly.swarm</groupId>
-  <artifactId>wildfly-swarm-plugin</artifactId>
+  <groupId>io.thorntail</groupId>
+  <artifactId>thorntail-maven-plugin</artifactId>
   <configuration>
-    <mainClass>org.wildfly.swarm.teiid.examples.Main</mainClass>
+    <mainClass>io.thorntail.teiid.examples.Main</mainClass>
   </configuration>
   ....
 </plugin>
 ----
 
-To define the needed parts of WildFly Swarm, a few dependencies(teiid, datasources, resource-adapters) are added.
+To define the needed parts of Thorntail, a few dependencies(teiid, datasources, resource-adapters) are added.
 
 [source,xml]
 ----
 <dependency>
-    <groupId>org.wildfly.swarm</groupId>
+    <groupId>io.thorntail</groupId>
     <artifactId>teiid</artifactId>
-    <version>${version.wildfly-swarm}</version>
+    <version>${version.thorntail}</version>
 </dependency>
 <dependency>
-    <groupId>org.wildfly.swarm</groupId>
+    <groupId>io.thorntail</groupId>
     <artifactId>datasources</artifactId>
-    <version>${version.wildfly-swarm}</version>
+    <version>${version.thorntail}</version>
 </dependency>          
 <dependency>
-    <groupId>org.wildfly.swarm</groupId>
+    <groupId>io.thorntail</groupId>
     <artifactId>resource-adapters</artifactId>
-    <version>${version.wildfly-swarm}</version>
+    <version>${version.thorntail}</version>
 </dependency> 
 ----
 
-To support teiid tranalators/connectors in general, the additional dependencies are added.
+To support teiid translators/connectors in general, the additional dependencies are added.
 
 [source,xml]
 ----
 <dependency>
-    <groupId>org.jboss.teiid.connectors</groupId>
+    <groupId>org.teiid.connectors</groupId>
     <artifactId>translator-jdbc</artifactId>
     <version>${version.teiid}</version>
 </dependency>
@@ -69,12 +69,12 @@ To support teiid tranalators/connectors in general, the additional dependencies 
     <version>${version.h2}</version>
 </dependency>
 <dependency>
-    <groupId>org.jboss.teiid.connectors</groupId>
+    <groupId>org.teiid.connectors</groupId>
     <artifactId>translator-file</artifactId>
     <version>${version.teiid}</version>
 </dependency>
 <dependency>
-    <groupId>org.jboss.teiid.connectors</groupId>
+    <groupId>org.teiid.connectors</groupId>
     <artifactId>connector-file</artifactId>
     <version>${version.teiid}</version>
 </dependency>
@@ -135,11 +135,11 @@ To build the project
 mvn clean package
 ----
 
-once build success, a `vdb-materialization-swarm.jar` will generated under 'target' folder, run the example via
+once build success, a `vdb-materialization-thorntail.jar` will generated under 'target' folder, run the example via
 
 [source,java]
 ----
-java -jar vdb-materialization-swarm.jar
+java -jar vdb-materialization-thorntail.jar
 ----
 
 By default, jdbc transport bind on `0.0.0.0` and port `31000`, system properties can be used eto bind a specific IP and Port, to bind a IP use `-Dswarm.bind.address=127.0.0.1`, to bind a port use `-Dswarm.teiid.jdbc.port=31000`.

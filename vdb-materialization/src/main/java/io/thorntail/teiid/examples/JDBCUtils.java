@@ -15,7 +15,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.wildfly.swarm.teiid.examples;
+package io.thorntail.teiid.examples;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

@@ -1,4 +1,4 @@
-package org.wildfly.swarm.teiid.examples;
+package io.thorntail.teiid.examples;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -46,11 +46,11 @@ public class Main {
         swarm.start();
 
         VDBArchive vdb = ShrinkWrap.create(VDBArchive.class);
-        vdb.vdb(Main.class.getClassLoader().getResourceAsStream("portfolio-vdb.xml"));
+        vdb.addAsManifestResource(Main.class.getClassLoader().getResource("portfolio-vdb.xml"), "vdb.xml");
         VDBArchive matvdb = ShrinkWrap.create(VDBArchive.class);
-        matvdb.vdb(Main.class.getClassLoader().getResourceAsStream("portfolio-mat-vdb.xml"));
+        matvdb.addAsManifestResource(Main.class.getClassLoader().getResource("portfolio-mat-vdb.xml"), "vdb.xml");
         VDBArchive intermatvdb = ShrinkWrap.create(VDBArchive.class);
-        intermatvdb.vdb(Main.class.getClassLoader().getResourceAsStream("portfolio-intermat-vdb.xml"));
+        intermatvdb.addAsManifestResource(Main.class.getClassLoader().getResource("portfolio-intermat-vdb.xml"), "vdb.xml");
         swarm.deploy(vdb);   
         swarm.deploy(matvdb);
         swarm.deploy(intermatvdb);

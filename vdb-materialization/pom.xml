@@ -2,32 +2,32 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
-        <groupId>org.wildfly.swarm.teiid.examples</groupId>
+        <groupId>io.thorntail.teiid.examples</groupId>
         <artifactId>examples-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent> 
     <artifactId>vdb-materialization</artifactId>  
     <packaging>jar</packaging>
     <name>Materialization</name>
-    <description>WildFly Swarm Teiid vdb materialization</description>
+    <description>Thorntail Teiid vdb materialization</description>
 
     <dependencies>      
 	    <dependency>
-	        <groupId>org.wildfly.swarm</groupId>
+	        <groupId>io.thorntail</groupId>
 	        <artifactId>teiid</artifactId>
-	        <version>${version.wildfly-swarm}</version>
+	        <version>${version.thorntail}</version>
 	    </dependency>
 	    
 	    <dependency>
-            <groupId>org.wildfly.swarm</groupId>
+            <groupId>io.thorntail</groupId>
             <artifactId>datasources</artifactId>
-            <version>${version.wildfly-swarm}</version>
+            <version>${version.thorntail}</version>
         </dependency>  
         
         <dependency>
-	        <groupId>org.wildfly.swarm</groupId>
+	        <groupId>io.thorntail</groupId>
 	        <artifactId>resource-adapters</artifactId>
-	        <version>${version.wildfly-swarm}</version>
+	        <version>${version.thorntail}</version>
 	    </dependency> 
 	    
 	    <dependency>
@@ -73,10 +73,10 @@
         </resources>
         <plugins>
 	        <plugin>
-                <groupId>org.wildfly.swarm</groupId>
-                <artifactId>wildfly-swarm-plugin</artifactId>
+                <groupId>io.thorntail</groupId>
+                <artifactId>thorntail-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>org.wildfly.swarm.teiid.examples.Main</mainClass>
+                    <mainClass>io.thorntail.teiid.examples.Main</mainClass>
                 </configuration>
                 <executions>
                     <execution>

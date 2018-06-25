@@ -5,7 +5,7 @@
     </properties>
     
     <resources>
-        <artifact name="org.jboss.teiid.connectors:connector-file:${version.teiid}"/>
+        <artifact name="org.teiid.connectors:connector-file:${version.teiid}"/>
         <resource-root path="."/>
     </resources>
 
