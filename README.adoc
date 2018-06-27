@@ -1,6 +1,6 @@
 = Thorntail Teiid Examples
 
-This takes you through an introduction to the concepts important to Teiid, Thorntail. Read http://teiid.github.io/teiid-documents/master/content/[Teiid Documentation] and https://docs.thorntail.io/[Thorntail Documentation]to understand different terminologies used, resources needed, and artifacts to be generated before developing a successful application. 
+This takes you through an introduction to the concepts important to Teiid, Thorntail. Read http://teiid.github.io/teiid-documents/master/content/[Teiid Documentation] and https://docs.thorntail.io/[Thorntail Documentation] to understand different terminologies used, resources needed, and artifacts to be generated before developing a successful application. 
 
 
 == Available Examples
