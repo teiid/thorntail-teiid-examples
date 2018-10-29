@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<vdb name="Market" version="1">
+
+	<description>The Market Data VDB that performs internal materialization</description>
+
+	<!-- Each model represents a access to one or more sources. The name of 
+		the model will be used as a top level schema name for all of the metadata 
+		imported from the connector. NOTE: Multiple models, with different import 
+		settings, can be bound to the same connector binding and will be treated 
+		as the same source at runtime. -->
+	<model name="MarketDataDir">
+		<!-- Each source represents a translator and data source. There are pre-defined 
+			translators, or you can create one. -->
+		<source name="dir" translator-name="file-override"
+			connection-jndi-name="java:/marketdata-file-dir" />
+	</model>
+
+	<model name="MarketDataMat" type="VIRTUAL">
+		<metadata type="DDL"><![CDATA[
+		
+	CREATE VIEW StockPricesStatic (
+            symbol string,
+            price bigdecimal
+            ) OPTIONS (materialized true,
+               "teiid_rel:ALLOW_MATVIEW_MANAGEMENT" 'true')
+            AS  
+               SELECT SP.symbol, SP.price
+                FROM (SELECT contents from sysadmin.VDBResources where resourcePath like '/data/%.txt') AS f, 
+                    TEXTTABLE(to_chars(f.contents, 'UTF-8') COLUMNS symbol string, price bigdecimal HEADER) AS SP;
+        
+   --polling refresh works with Teiid 10.3+ https://issues.jboss.org/browse/TEIID-4745
+        
+   CREATE VIEW StockPricesDir (
+            symbol string,
+            price bigdecimal
+            ) OPTIONS (
+            	materialized true,
+                "teiid_rel:ALLOW_MATVIEW_MANAGEMENT" 'true',
+                "teiid_rel:MATVIEW_POLLING_QUERY" 'SELECT max(lastModified) from (EXEC MarketDataDir.getTextFiles(''*.txt'')) as x',
+                "teiid_rel:MATVIEW_POLLING_INTERVAL" 2000
+            )
+            AS  
+               SELECT SP.symbol, SP.price
+                FROM (EXEC MarketDataDir.getTextFiles('*.txt')) AS f, 
+                    TEXTTABLE(f.file COLUMNS symbol string, price bigdecimal HEADER) AS SP;
+		]]>
+   		</metadata>
+	</model>
+	
+	<translator name="file-override" type="file">
+		<property name="exceptionIfFileNotFound">false</property>
+	</translator>
+
+</vdb>

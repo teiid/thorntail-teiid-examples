@@ -1,130 +1,67 @@
+= Summary
 
-= What is it?
-
-> Please raise any issues found with this example in our JIRA:
+> Please raise any issues found with this example in our JIRA: 
 > https://issues.jboss.org/projects/TEIID
 
 This example demonstrates:
 
-* how to define a vdb to enable data federation across multiple data sources (i.e., relational and text file).
-* how to configure external/internal materialization(http://teiid.github.io/teiid-documents/master/content/caching/Materialized_Views.html[document external/internal materialization]), so that caching can be used to improve query performance.
+* using static and filesystem file resources
+* how to configure internal materialization(http://teiid.github.io/teiid-documents/master/content/caching/Materialized_Views.html[materialization]), so that caching can be used to improve query performance.
 * how to use Thorntail to configure translators, resource adapters and run teiid as a Thorntail uber jar.
 
 == Project `pom.xml`
 
-The project is a normal maven project with `jar` packaging
+The project is a normal maven project with `vdb` packaging
 
 [source,xml]
 ----
-<packaging>jar</packaging>
+<packaging>vdb</packaging>
+
+<build>
+	<plugins>
+      <plugin>
+        <groupId>org.teiid</groupId>
+        <artifactId>vdb-maven-plugin</artifactId>
+        <version>1.1</version>
+		... see more in pom.xml file		
+      </plugin>	
+	</plugins>
+</build>
 ----
 
-The project adds a `<plugin>` to configure `thorntail-maven-plugin` to create the runnable `.jar`.
+This project also requires the `thorntail-maven-plugin` to build a uber jar with `-thorntail.jar` extension, for that add the following
 
-[source,xml]
 ----
-<plugin>
-  <groupId>io.thorntail</groupId>
-  <artifactId>thorntail-maven-plugin</artifactId>
-  <configuration>
-    <mainClass>io.thorntail.teiid.examples.Main</mainClass>
-  </configuration>
-  ....
-</plugin>
-----
+<build>
+	<plugins>
+      <plugin>
+        <groupId>io.thorntail</groupId>
+        <artifactId>thorntail-maven-plugin</artifactId>
+        <version>${version.thorntail}</version>
+		... see more in pom.xml file	
+      </plugin>	
+	</plugins>
+</build>
+---- 
 
 To define the needed parts of Thorntail, a few dependencies(teiid, datasources, resource-adapters) are added.
 
 [source,xml]
 ----
+<!-- This adds dependency on Teiid Fraction in Thorntail -->
 <dependency>
-    <groupId>io.thorntail</groupId>
-    <artifactId>teiid</artifactId>
-    <version>${version.thorntail}</version>
+  <groupId>io.thorntail</groupId>
+  <artifactId>teiid</artifactId>
 </dependency>
-<dependency>
-    <groupId>io.thorntail</groupId>
-    <artifactId>datasources</artifactId>
-    <version>${version.thorntail}</version>
-</dependency>          
-<dependency>
-    <groupId>io.thorntail</groupId>
-    <artifactId>resource-adapters</artifactId>
-    <version>${version.thorntail}</version>
-</dependency> 
-----
 
-To support teiid translators/connectors in general, the additional dependencies are added.
-
-[source,xml]
-----
+<!-- This adds dependency for Teiid's JDBC translator -->
 <dependency>
-    <groupId>org.teiid.connectors</groupId>
-    <artifactId>translator-jdbc</artifactId>
-    <version>${version.teiid}</version>
-</dependency>
-<dependency>
-    <groupId>com.h2database</groupId>
-    <artifactId>h2</artifactId>
-    <version>${version.h2}</version>
-</dependency>
-<dependency>
-    <groupId>org.teiid.connectors</groupId>
-    <artifactId>translator-file</artifactId>
-    <version>${version.teiid}</version>
-</dependency>
-<dependency>
-    <groupId>org.teiid.connectors</groupId>
-    <artifactId>connector-file</artifactId>
-    <version>${version.teiid}</version>
+  <groupId>io.thorntail</groupId>
+  <artifactId>teiid-file</artifactId>
 </dependency>
 ----
 
-== Project `main()`
-
-This example configured teiid translators, datasource, resource adapter and deploy vdb programatically.
-
-[source,java]
-----
-public static void main(String[] args) throws Exception {
-
-    Swarm swarm = new Swarm();        
-    swarm.fraction(new TeiidFraction()
-             .translator("h2", t -> t.module("org.jboss.teiid.translator.jdbc"))
-             .translator("file", t -> t.module("org.jboss.teiid.translator.file")))
-         .fraction(new DatasourcesFraction()
-             .jdbcDriver("h2", driver -> {
-                 driver.driverClassName("org.h2.Driver");
-                 driver.xaDatasourceClass("org.h2.jdbcx.JdbcDataSource");
-                 driver.driverModuleName("com.h2database.h2");
-             })
-             .dataSource("accounts-ds", ds -> {
-                 ds.driverName("h2");
-                 ds.connectionUrl(URL);
-                 ds.userName("sa");
-                 ds.password("sa");
-             }))
-         .fraction(new ResourceAdapterFraction()
-             .resourceAdapter("fileQS", rac -> rac.module("org.jboss.teiid.resource-adapter.file")
-                 .connectionDefinitions("fileQS", cdc -> cdc.className("org.teiid.resource.adapter.file.FileManagedConnectionFactory")
-                     .jndiName("java:/marketdata-file")
-                     .configProperties("ParentDirectory", cpc -> cpc.value(marketdataDir))
-                     .configProperties("AllowParentPaths", cpc -> cpc.value("true")))));
-    swarm.start();
-
-    VDBArchive vdb = ShrinkWrap.create(VDBArchive.class);
-    vdb.vdb(Main.class.getClassLoader().getResourceAsStream("portfolio-vdb.xml"));
-    VDBArchive matvdb = ShrinkWrap.create(VDBArchive.class);
-    matvdb.vdb(Main.class.getClassLoader().getResourceAsStream("portfolio-mat-vdb.xml"));
-    VDBArchive intermatvdb = ShrinkWrap.create(VDBArchive.class);
-    intermatvdb.vdb(Main.class.getClassLoader().getResourceAsStream("portfolio-intermat-vdb.xml"));
-    swarm.deploy(vdb);   
-    swarm.deploy(matvdb);
-    swarm.deploy(intermatvdb);
-}
-----
-
-> This example depend on a series of jboss modules, rerfer to `src/main/resources/modules` for details. Alternatively, if you want define moduls externally, you can build the modules externally, then add your modules as a dependency, teiid feature back can be used to build teiid related modules.
+The example by default expects /tmp/teiidfiles to be populated with files similar to the ones in the link:/src/main/resources/data[data directory].  You may change that location in the project-defaults.yml.
 
 == Run
 
@@ -149,57 +86,23 @@ By default, jdbc transport bind on `0.0.0.0` and port `31000`, system properties
 link:../simpleclient/README.adoc#_execution[Simple Java Client] for sample SQL Queries, link:../simpleclient/SQuirreL.adoc[SQuirreL Client] for a fully featured SQL Queries.
 
 [source,sql]
-.*Example - Query the external materialized View*
+.*Example - Query the static materialized View*
 ----
-mvn exec:java -Dvdb="PortfolioMaterialize" -Dsql="select * from StocksMatModel.stockPricesMatView"
+mvn exec:java -Dvdb="Market" -Dsql="select * from MarketDataMat.StockPricesStatic"
 ----
 
 [source,sql]
 .*Example - Query the internal materialized View*
 ----
-mvn exec:java -Dvdb="PortfolioInterMaterialize" -Dsql="select * from StocksMatModel.stockPricesInterMatView"
+mvn exec:java -Dvdb="Market" -Dsql="select * from MarketDataMat.StockPricesDir"
 ----
 
-[source,sql]
-.*Example - Query external materialization*
-----
-mvn exec:java -Dvdb="PortfolioMaterialize" -Dsql="select * from StocksMatModel.stockPricesMatView"
-mvn exec:java -Dvdb="PortfolioMaterialize" -Dsql="INSERT INTO PRODUCT (ID,SYMBOL,COMPANY_NAME) VALUES(2000,'RHT','Red Hat Inc')"
-mvn exec:java -Dvdb="PortfolioMaterialize" -Dsql="select * from StocksMatModel.stockPricesMatView"
-----
+If you have not added files to the expected directory, that query will return an empty result.
 
-NOTE: First, execute `select * from StocksMatModel.stockPricesMatView` will get 18 rows, insert a new row into Product table(`INSERT INTO PRODUCT (ID,SYMBOL,COMPANY_NAME) VALUES(2000,'RHT','Red Hat Inc')`), wait 1 minute, as defined by: "teiid_rel:MATVIEW_TTL" 60000 in the portfolio-vdb.xml, re-execute `select * from StocksMatModel.stockPricesMatView` will get 19 rows,
-
-
-[source,sql]
-.*Example - Query the original source*
-----
-mvn exec:java -Dvdb="PortfolioMaterialize" -Dsql="select * from StocksMatModel.stockPricesMatView option nocache"
-----
-
-[source,sql]
-.*Example - Query Materialized view status*
-----
-mvn exec:java -Dvdb="PortfolioMaterialize" -Dsql="EXEC SYSADMIN.matViewStatus('StocksMatModel', 'stockPricesMatView')"
-mvn exec:java -Dvdb="PortfolioInterMaterialize" -Dsql="EXEC SYSADMIN.matViewStatus('StocksMatModel', 'stockPricesInterMatView')"
-----
+Once Thorntail is updated to a Teiid 10.3+, you can add files at runtime and the polling will determine when to refresh the materialization.  Otherwise you may perform a manual refresh as shown below. 
 
 [source,sql]
 .*Example - Perform a complete refresh*
 ----
-mvn exec:java -Dvdb="PortfolioMaterialize" -Dsql="EXEC SYSADMIN.loadMatView('StocksMatModel', 'stockPricesMatView')"
-mvn exec:java -Dvdb="PortfolioInterMaterialize" -Dsql="EXEC SYSADMIN.loadMatView('StocksMatModel', 'stockPricesInterMatView')"
-----
-
-[source,sql]
-.*Example - SQL*
-----
-select * from StocksMatModel.stockPricesMatView 
-select * from StocksMatModel.stockPricesInterMatView
-INSERT INTO PRODUCT (ID,SYMBOL,COMPANY_NAME) VALUES(2000,'RHT','Red Hat Inc')
-select * from StocksMatModel.stockPricesMatView option nocache
-EXEC SYSADMIN.matViewStatus('StocksMatModel', 'stockPricesMatView')
-EXEC SYSADMIN.loadMatView('StocksMatModel', 'stockPricesInterMatView')
-EXEC SYSADMIN.loadMatView('StocksMatModel', 'stockPricesMatView')
-EXEC SYSADMIN.loadMatView('StocksMatModel', 'stockPricesInterMatView')
+mvn exec:java -Dvdb="Market" -Dsql="EXEC SYSADMIN.loadMatView('MarketDataMat', 'StockPricesDir')"
 ----

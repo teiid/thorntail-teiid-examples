@@ -8,15 +8,23 @@ This takes you through an introduction to the concepts important to Teiid, Thorn
 |===
 |*Quickstart Name* |*Features Demonstrated* |*Description* |*Prerequisites*
 
-|link:rdbms-as-datasource/README.adoc[rdbms-as-datasource]
+|link:rdbms-as-datasource/[rdbms-as-datasource]
 |JDBC translator, Native Query
 |Shows how to transfer data from a relational database
 |None
 
-|link:vdb-datafederation/README.adoc[vdb-datafederation]
+|link:vdb-datafederation/[vdb-datafederation]
 |Data Federation, JDBC translator, Data as Service, OData4, Microservice
 |Shows how to expose multiple data sources for data federation and expose as a real time data service
 |OpenShift, Mysql
-|===
 
-NOTE: The other examples in this repo are from previous version of Thorntail, and do not work with current version.
+|link:vdb-materialization/[vdb-materialization]
+|File translator, Materialization
+|Shows how to expose csv files with materialization for performance
+|None
+
+|link:salesforce-as-datasource/[salesforce-as-datasource]
+|File translator, Materialization
+|Shows how to expose Salesforce as a relational source.
+|Salesforce
+|===
