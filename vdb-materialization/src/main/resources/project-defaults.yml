@@ -1,0 +1,15 @@
+swarm:
+  resource-adapters:
+    resource-adapters:
+      marketdata-file-dir:
+        module: org.jboss.teiid.resource-adapter.file
+        transaction-support: NoTransaction
+        connection-definitions:
+          marketdata-file-dir:
+            class-name: org.teiid.resource.adapter.file.FileManagedConnectionFactory
+            jndi-name: java:/marketdata-file-dir
+            enabled: true
+            use-java-context: true
+            config-properties:
+              parentDirectory:
+                value: /tmp/teiidfiles/
