@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<vdb name="ws" version="1">
+
+	<description>Demonstrates SOAP and basic REST calls</description>
+
+    <model name="soap">
+        <property name="importer.importWSDL">true</property>
+        <source name="soap" translator-name="ws"
+			connection-jndi-name="java:/ws-soap-service" />
+	</model>
+	
+	<model name="rest">
+        <property name="importer.importWSDL">false</property>
+        <source name="rest" translator-name="ws"
+			connection-jndi-name="java:/ws-service" />
+	</model>
+	
+	<model name="CountryInfo" type="VIRTUAL">
+		<metadata type="DDL"><![CDATA[
+		
+		-- a soap source, gives you procedures - but they are message in/out
+		-- you may need to create more rpc style procedures or process the
+		-- the output messsages to tabular results
+		
+		CREATE VIRTUAL PROCEDURE capital_city (code string(2)) returns string 
+		AS
+		BEGIN 
+		   declare xml payload = xmlelement(CapitalCity, xmlnamespaces(default 'http://www.oorsprong.org/websamples.countryinfo'), 
+		       xmlelement(sCountryISOCode, code));
+		   declare xml val;
+		   val = CALL soap.capitalCity(payload);
+		   return xpathValue(val, '*:CapitalCityResponse/*:CapitalCityResult');
+		END
+		
+		-- shows using xmltable to convert xml to tabular results
+		-- from a GET
+		
+        CREATE VIEW continents (
+          code string(2) primary key, 
+          name string(40))
+        AS
+          select x.* 
+            from 
+              XMLTABLE('/ArrayOftContinent/tContinent' 
+                passing xmlparse(document (select result from (call rest.invokeHttp(action=>'GET',endpoint=>'/ListOfContinentsByName')) as d))
+                columns sCode string, sName string
+              ) as x;
+    
+        ]]>
+   		</metadata>
+	</model>
+	
+</vdb>

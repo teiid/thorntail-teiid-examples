@@ -1,0 +1,33 @@
+swarm:
+  resource-adapters:
+    resource-adapters:
+      ws-soap-service:
+        module: org.jboss.teiid.resource-adapter.webservice
+        transaction-support: NoTransaction
+        connection-definitions:
+          ws-soap-service:
+            class-name: org.teiid.resource.adapter.ws.WSManagedConnectionFactory
+            jndi-name: java:/ws-soap-service
+            enabled: true
+            use-java-context: true
+            config-properties:
+              Wsdl:
+                value: http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso?WSDL
+              NamespaceUri:
+                value: http://www.oorsprong.org/websamples.countryinfo
+              ServiceName:
+                value: CountryInfoService
+              EndPointName:
+                value: CountryInfoServiceSoap12
+      ws-service:
+        module: org.jboss.teiid.resource-adapter.webservice
+        transaction-support: NoTransaction
+        connection-definitions:
+          ws-service:
+            class-name: org.teiid.resource.adapter.ws.WSManagedConnectionFactory
+            jndi-name: java:/ws-service
+            enabled: true
+            use-java-context: true
+            config-properties:
+              EndPoint:
+                value: http://webservices.oorsprong.org/websamples.countryinfo/CountryInfoService.wso

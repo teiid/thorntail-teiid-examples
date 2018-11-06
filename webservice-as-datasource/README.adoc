@@ -5,8 +5,7 @@
 
 This example demonstrates:
 
-* using static and filesystem file resources
-* how to configure internal materialization(http://teiid.github.io/teiid-documents/master/content/caching/Materialized_Views.html[materialization]), so that caching can be used to improve query performance.
+* Using the ws translator / resource adapter
 * how to use Thorntail to configure translators, resource adapters and run teiid as a Thorntail uber jar.
 
 == Project `pom.xml`
@@ -54,14 +53,12 @@ To define the needed parts of Thorntail, a few dependencies(teiid, datasources, 
   <artifactId>teiid</artifactId>
 </dependency>
 
-<!-- This adds dependency for Teiid's file translator -->
+<!-- This adds dependency for Teiid's webservice translator -->
 <dependency>
   <groupId>io.thorntail</groupId>
-  <artifactId>teiid-file</artifactId>
+  <artifactId>teiid-ws</artifactId>
 </dependency>
 ----
-
-The example by default expects /tmp/teiidfiles to be populated with files similar to the ones in the link:/src/main/resources/data[data directory].  You may change that location in the project-defaults.yml.
 
 == Run
 
@@ -72,11 +69,11 @@ To build the project
 mvn clean package
 ----
 
-once build success, a `vdb-materialization-thorntail.jar` will generated under 'target' folder, run the example via
+once build success, a `webservice-as-datasource-thorntail.jar` will generated under 'target' folder, run the example via
 
 [source,java]
 ----
-java -jar vdb-materialization-thorntail.jar
+java -jar webservice-as-datasource-thorntail.jar
 ----
 
 By default, jdbc transport bind on `0.0.0.0` and port `31000`, system properties can be used eto bind a specific IP and Port, to bind a IP use `-Dswarm.bind.address=127.0.0.1`, to bind a port use `-Dswarm.teiid.jdbc.port=31000`.
@@ -88,21 +85,13 @@ link:../simpleclient/README.adoc#_execution[Simple Java Client] for sample SQL Q
 [source,sql]
 .*Example - Query the static materialized View*
 ----
-mvn exec:java -Dvdb="Market" -Dsql="select * from MarketDataMat.StockPricesStatic"
+mvn exec:java -Dvdb="Market" -Dsql="select * from CountryInfo.continents"
 ----
+
+Since the OData fraction is also declared in the pom, you may use a browser or curl to see OData results.
 
 [source,sql]
-.*Example - Query the internal materialized View*
+.*Example - OData Function*
 ----
-mvn exec:java -Dvdb="Market" -Dsql="select * from MarketDataMat.StockPricesDir"
-----
-
-If you have not added files to the expected directory, that query will return an empty result.
-
-Once Thorntail is updated to a Teiid 10.3+, you can add files at runtime and the polling will determine when to refresh the materialization.  Otherwise you may perform a manual refresh as shown below. 
-
-[source,sql]
-.*Example - Perform a complete refresh*
-----
-mvn exec:java -Dvdb="Market" -Dsql="EXEC SYSADMIN.loadMatView('MarketDataMat', 'StockPricesDir')"
+http://localhost:8080/odata4/ws/CountryInfo/capital_city(code='US')
 ----

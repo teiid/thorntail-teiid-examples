@@ -27,4 +27,9 @@ This takes you through an introduction to the concepts important to Teiid, Thorn
 |File translator, Materialization
 |Shows how to expose Salesforce as a relational source.
 |Salesforce
+
+|link:webservice-as-datasource/[webservice-as-datasource]
+|Webservice translator
+|Shows how to expose Webservices.
+|
 |===
