@@ -1,3 +1,15 @@
+= IMPORTANT: We've moved (again)
+
+This repository shows usage of Teiid with Thorntail up to Teiid 10.2 and Thorntail versions 2.0 - 2.2.
+
+Starting with Thorntail 2.3, the Teiid project has started to directly own the config api and fractions.  Now everything is under one convinent repo: https://github.com/teiid/teiid-thorntail
+
+The examples can be found at https://github.com/teiid/teiid-thorntail
+
+See https://github.com/teiid/teiid-thorntail/examples and the migration guide https://github.com/teiid/teiid-thorntail/blob/master/README.md
+
+The new modules are compatible with Thorntail 2.2.
+
 = Thorntail Teiid Examples
 
 This takes you through an introduction to the concepts important to Teiid, Thorntail. Read http://teiid.github.io/teiid-documents/master/content/[Teiid Documentation] and https://docs.thorntail.io/[Thorntail Documentation] to understand different terminologies used, resources needed, and artifacts to be generated before developing a successful application. 
